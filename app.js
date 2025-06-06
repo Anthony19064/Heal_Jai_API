@@ -4,6 +4,9 @@ require('./db');
 const express = require('express');
 const app = express();
 
+const cors = require('cors');
+app.use(cors());
+
 const accountRouters = require('./routers/account');
 const postRouters = require('./routers/post');
 const moodRouters = require('./routers/mood');
@@ -18,7 +21,6 @@ app.use('/api', postRouters);
 app.use('/api', moodRouters);
 app.use('/api', dayStackRouters);
 app.use('/api', commentRouters);
-
 
 
 app.listen(3000, () => {
