@@ -1,0 +1,136 @@
+const express = require('express');
+const router = express.Router();
+const Account = require('../models/accountModel');
+const bcrypt = require('bcrypt');
+
+
+//เข้าสู่ระบบ
+router.post('/login', async (req, res) => {
+  const { mail, password } = req.body;
+
+  const myAccount = await Account.findOne({ mail });
+  if (!myAccount) {
+    return res.status(401).json({ success: false, message: 'ไม่พบอีเมล' });
+  }
+
+  const CheckPass = await bcrypt.compare(password, myAccount.password);
+  if (!CheckPass) {
+    return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
+  }
+
+  return res.json({
+    success: true,
+    message: 'เข้าสู่ระบบสำเร็จ',
+    user: {
+      id: myAccount.id,
+      username: myAccount.username,
+      mail: myAccount.mail,
+      photoURL: myAccount.photoURL
+    },
+  });
+});
+
+
+
+//ลงทะเบียน
+router.post('/regis', async (req, res) => {
+  try {
+    const { username, mail, password, confirmPassword } = req.body;
+    const photoURL = '';
+
+    if (username === '' || mail === '' || password === '' || confirmPassword === '') {
+      return res.status(401).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบ' });
+    }
+
+    if (password != confirmPassword) {
+      return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ตรงกัน' });
+    }
+
+    const checkUser = await Account.findOne({ $or: [{ username }, { mail }] });
+    if (checkUser) {
+      return res.status(401).json({ success: false, message: 'ชื่อผู้ใช้หรืออีเมลมีคนใช้ไปแล้ว :(' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAccount = new Account({ username, password: hashedPassword, mail, photoURL });
+    await newAccount.save();
+
+    return res.json({ success: true, message: "ลงทะเบียนสำเร็จ" })
+
+  } catch (error) {
+    console.error(error);
+  }
+
+})
+
+//เข้าสู่ระบบด้วย Google
+router.post('/googleAuth', async (req, res) => {
+  try {
+    const { displayName, email, uid, photoURL } = req.body;
+    let myAccount = await Account.findOne({ googleId: uid });
+
+    if (!myAccount) {
+      const newAccount = new Account({ username: displayName, mail: email, photoURL, googleId: uid })
+      await newAccount.save();
+      myAccount = newAccount;
+    }
+
+    return res.json({
+      success: true, message: "เข้าสู่ระบบสำเร็จ",
+      user: {
+        id: myAccount.id,
+        username: myAccount.username,
+        mail: myAccount.mail,
+        photoURL: myAccount.photoURL
+      },
+    })
+
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+
+//ดึงบัญชีเดียว
+router.post('/getAccount', async (req, res) => {
+  const { postowner } = req.body;
+
+  if (!postowner) {
+    return res.status(400).json({ error: 'postowner is required' });
+  }
+
+  try {
+    const myAccount = await Account.findById(postowner);
+    if (!myAccount) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+    const accountObj = myAccount.toObject();
+    delete accountObj.password;
+    return res.json(accountObj);
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//ดึงทุกบัญชี มีไว้ทำไมงงเหมือนกัน
+router.get('/accounts', async (req, res) => {
+  try {
+    const users = await Account.find();  // ดึง document ทั้งหมด
+    if (!users) {
+      res.status(500).send('Error fetching users');
+    }
+
+    const userObj = users.toObject();
+    delete userObj.password;
+    return res.json(userObj);
+  } catch (err) {
+    return res.status(500).send('Error fetching users');
+  }
+});
+
+
+module.exports = router;
