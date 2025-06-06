@@ -22,6 +22,10 @@ app.use('/api', moodRouters);
 app.use('/api', dayStackRouters);
 app.use('/api', commentRouters);
 
+app.get('/', (req, res) => {
+  res.send('Welcome to HealJai API :)');
+})
+
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
