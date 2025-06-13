@@ -12,6 +12,7 @@ const postRouters = require('./routers/post');
 const moodRouters = require('./routers/mood');
 const dayStackRouters = require('./routers/dayStack');
 const commentRouters = require('./routers/comment');
+const likeRouters = require('./routers/Like');
 
 app.use(express.json());
 
@@ -21,6 +22,7 @@ app.use('/api', postRouters);
 app.use('/api', moodRouters);
 app.use('/api', dayStackRouters);
 app.use('/api', commentRouters);
+app.use('/api', likeRouters);
 
 app.get('/', (req, res) => {
   res.send('Welcome to HealJai API :)');
