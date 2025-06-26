@@ -145,9 +145,7 @@ router.get('/accounts', async (req, res) => {
       res.status(500).send('Error fetching users');
     }
 
-    const userObj = users.toObject();
-    delete userObj.password;
-    return res.json(userObj);
+    return res.json(users);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Internal server error' });
