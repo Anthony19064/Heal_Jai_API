@@ -34,8 +34,8 @@ router.put('/updateDayStack', async (req, res) => {
 });
 
 
-router.post('/getDayStack', async (req, res) => {
-    const { userId } = req.body;
+router.get('/getDayStack/:userId', async (req, res) => {
+    const { userId } = req.params;
     const latestMood = new Date();
     latestMood.setHours(0, 0, 0, 0);
     latestMood.setDate(latestMood.getDate() - 1);

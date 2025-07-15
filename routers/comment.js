@@ -3,8 +3,9 @@ const router = express.Router();
 const Comment = require('../models/commentModel');
 
 
-router.post('/countComment', async (req, res) => {
-    const { postID } = req.body
+router.get('/countComment/:postID', async (req, res) => {
+    const { postID } = req.params
+
     if (!postID || typeof (postID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID is require' });
     }
@@ -17,8 +18,8 @@ router.post('/countComment', async (req, res) => {
     }
 });
 
-router.post('/getComment', async (req, res) => {
-    const { postID } = req.body;
+router.get('/getComment/:postID', async (req, res) => {
+    const { postID } = req.params;
     if (!postID || typeof (postID) !== 'string') {
         return res.status(400).json({ error: 'postID is required' });
     }

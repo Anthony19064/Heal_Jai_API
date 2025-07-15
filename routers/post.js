@@ -3,8 +3,8 @@ const router = express.Router();
 const Post = require('../models/postModel');
 
 
-router.post('/getMypost', async (req, res) => {
-  const { ownerId } = req.body;
+router.get('/getMypost/:ownerId', async (req, res) => {
+  const { ownerId } = req.params;
   if (!ownerId || typeof (ownerId) !== 'string') {
     return res.status(400).json({ success: false, message: 'ownerId is require' });
   }
@@ -20,7 +20,7 @@ router.post('/getMypost', async (req, res) => {
 
 });
 
-router.get('/getAllpost', async (req, res) => {
+router.get('/posts', async (req, res) => {
   const limit = parseInt(req.query.limit) || 5;
   const skip = parseInt(req.query.skip) || 0;
 

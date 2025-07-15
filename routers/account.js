@@ -112,8 +112,8 @@ router.post('/googleAuth', async (req, res) => {
 
 
 //ดึงบัญชีเดียว
-router.post('/getAccount', async (req, res) => {
-  const { postowner } = req.body;
+router.get('/getAccount/:postowner', async (req, res) => {
+  const { postowner } = req.params;
 
   if (!postowner || typeof (postowner) !== 'string') {
     return res.status(400).json({ error: 'postowner is required' });
