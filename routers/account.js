@@ -57,11 +57,11 @@ router.post('/regis', async (req, res) => {
 
     const checkUsername = await Account.findOne({username});
     if (checkUsername) {
-      return res.status(400).json({ success: false, message: 'Username มีคนใช้ไปแล้ว :(' });
+      return res.status(400).json({ success: false, message: 'Username นี้มีคนใช้ไปแล้ว :(' });
     }
     const checkUserMail = await Account.findOne({mail});
     if (checkUserMail) {
-      return res.status(400).json({ success: false, message: 'Email มีคนใช้ไปแล้ว :(' });
+      return res.status(400).json({ success: false, message: 'Email นี้มีคนใช้ไปแล้ว :(' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
