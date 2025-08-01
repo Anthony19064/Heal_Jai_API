@@ -55,9 +55,13 @@ router.post('/regis', async (req, res) => {
       return res.status(400).json({ success: false, message: 'รหัสผ่านไม่ตรงกัน' });
     }
 
-    const checkUser = await Account.findOne({ $or: [{ username }, { mail }] });
-    if (checkUser) {
-      return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้หรืออีเมลมีคนใช้ไปแล้ว :(' });
+    const checkUsername = await Account.findOne({username});
+    if (checkUsername) {
+      return res.status(400).json({ success: false, message: 'Username มีคนใช้ไปแล้ว :(' });
+    }
+    const checkUserMail = await Account.findOne({mail});
+    if (checkUserMail) {
+      return res.status(400).json({ success: false, message: 'Email มีคนใช้ไปแล้ว :(' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
