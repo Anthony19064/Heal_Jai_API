@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/postModel');
 
+const verifyToken = require('../middleware/verifyToken');
 
-router.get('/getMypost/:ownerId', async (req, res) => {
+
+router.get('/getMypost/:ownerId', verifyToken, async (req, res) => {
   const { ownerId } = req.params;
   if (!ownerId || typeof (ownerId) !== 'string') {
     return res.status(400).json({ success: false, message: 'ownerId is require' });
+  }
+  if (ownerId !== req.user.id) {
+    return res.status(403).json({ success: false, message: 'Forbidden access' });
   }
   try {
 
@@ -20,7 +25,7 @@ router.get('/getMypost/:ownerId', async (req, res) => {
 
 });
 
-router.get('/posts', async (req, res) => {
+router.get('/posts', verifyToken, async (req, res) => {
   const limit = parseInt(req.query.limit) || 5;
   const skip = parseInt(req.query.skip) || 0;
 
@@ -38,7 +43,7 @@ router.get('/posts', async (req, res) => {
 
 });
 
-router.post('/addPost', async (req, res) => {
+router.post('/addPost', verifyToken, async (req, res) => {
   const { ownerId, infoPost, imgUrl } = req.body;
 
   if (!ownerId || typeof (ownerId) !== 'string' || typeof infoPost !== 'string' || !infoPost.trim()) {

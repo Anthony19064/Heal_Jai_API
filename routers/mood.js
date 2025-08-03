@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Mood = require('../models/moodModel');
 
+const verifyToken = require('../middleware/verifyToken');
 
-router.post('/getMood', async (req, res) => {
+router.post('/getMood', verifyToken, async (req, res) => {
     const { userId, thisMonth, thisYear } = req.body;
     if (thisMonth && thisYear) {
         if (typeof (thisMonth) !== 'number' || typeof (thisYear) !== 'number') {
@@ -16,6 +17,9 @@ router.post('/getMood', async (req, res) => {
     const endDate = new Date(Date.UTC(thisYear, thisMonth + 1, 0, 23, 59, 59));
     if (!userId || typeof (userId) !== 'string') {
         return res.status(400).json({ success: false, message: 'userId is required' })
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
     try {
         const Moods = await Mood.find({
@@ -32,7 +36,7 @@ router.post('/getMood', async (req, res) => {
     }
 });
 
-router.post('/addMood', async (req, res) => {
+router.post('/addMood', verifyToken, async (req, res) => {
     const { userId, userText, moodValue } = req.body;
     const toDay = new Date();
 
@@ -52,8 +56,12 @@ router.post('/addMood', async (req, res) => {
     }
 
     if (!userId || typeof (userId) !== 'string') {
-        return res.status(400).json({ success: false, message: "userId and Mood are required" });
+        return res.status(400).json({ success: false, message: "userId is required" });
     }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
+    }
+
     try {
         const NewMood = new Mood({
             userID: userId,
@@ -72,7 +80,7 @@ router.post('/addMood', async (req, res) => {
 });
 
 
-router.get('/getLatestMood/:userId', async (req, res) => {
+router.get('/getLatestMood/:userId', verifyToken, async (req, res) => {
     const { userId } = req.params;
     const latestMood = new Date();
     latestMood.setHours(0, 0, 0, 0);
@@ -82,6 +90,9 @@ router.get('/getLatestMood/:userId', async (req, res) => {
     endlatestDay.setHours(23, 59, 59, 999);
     if (!userId || typeof (userId) !== 'string') {
         return res.status(400).json({ success: false, message: "userId is required" });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
     try {
         const mylatestmood = await Mood.findOne({ userID: userId, dateAt: { $gte: latestMood, $lte: endlatestDay } });

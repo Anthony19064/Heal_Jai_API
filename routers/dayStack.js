@@ -3,7 +3,9 @@ const router = express.Router();
 const DayStack = require('../models/dayStackModel');
 const Mood = require('../models/moodModel');
 
-router.put('/updateDayStack', async (req, res) => {
+const verifyToken = require('../middleware/verifyToken');
+
+router.put('/updateDayStack', verifyToken, async (req, res) => {
     const { userId } = req.body;
     const latestMood = new Date();
     latestMood.setHours(0, 0, 0, 0);
@@ -14,6 +16,9 @@ router.put('/updateDayStack', async (req, res) => {
 
     if (!userId || typeof (userId) !== 'string') {
         return res.status(400).json({ success: false, message: 'userId is required' });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
@@ -34,7 +39,7 @@ router.put('/updateDayStack', async (req, res) => {
 });
 
 
-router.get('/getDayStack/:userId', async (req, res) => {
+router.get('/getDayStack/:userId', verifyToken, async (req, res) => {
     const { userId } = req.params;
     const latestMood = new Date();
     latestMood.setHours(0, 0, 0, 0);
@@ -51,6 +56,9 @@ router.get('/getDayStack/:userId', async (req, res) => {
 
     if (!userId || typeof (userId) !== 'string') {
         return res.status(400).json({ success: false, message: 'userId is required' });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {

@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Account = require('../models/accountModel');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
+const JWT_KEY = process.env.JWT_SECRET;
 
 //เข้าสู่ระบบ
 router.post('/login', async (req, res) => {
@@ -20,9 +23,21 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
       }
 
+      const token = jwt.sign(
+        {
+          id: myAccount.id,
+          mail: myAccount.mail,
+          username: myAccount.username,
+          photoURL: myAccount.photoURL
+        },
+        JWT_KEY,
+        { expiresIn: '7d' } // อายุ token 7 วัน
+      );
+
       return res.json({
         success: true,
         message: 'เข้าสู่ระบบสำเร็จ',
+        token,
         user: {
           id: myAccount.id,
           username: myAccount.username,
@@ -40,6 +55,50 @@ router.post('/login', async (req, res) => {
 });
 
 
+//เข้าสู่ระบบด้วย Google
+router.post('/googleAuth', async (req, res) => {
+  try {
+    const { displayName, email, uid, photoURL } = req.body;
+    if (displayName && email && uid && photoURL) {
+      if (typeof (displayName) !== 'string' || typeof (email) !== 'string' || typeof (uid) !== 'string' || typeof (photoURL) !== 'string') {
+        return res.status(400).json({ success: false, message: 'Data type is wrong' });
+      }
+      let myAccount = await Account.findOne({ googleId: uid });
+
+      if (!myAccount) {
+        const newAccount = new Account({ username: displayName, mail: email, photoURL, googleId: uid })
+        await newAccount.save();
+        myAccount = newAccount;
+      }
+
+      const token = jwt.sign(
+        {
+          id: myAccount.id,
+          mail: myAccount.mail,
+          username: myAccount.username,
+          photoURL: myAccount.photoURL
+        },
+        JWT_KEY,
+        { expiresIn: '7d' } // อายุ token 7 วัน
+      );
+
+      return res.json({
+        success: true, message: "เข้าสู่ระบบสำเร็จ",
+        token,
+        user: {
+          id: myAccount.id,
+          username: myAccount.username,
+          mail: myAccount.mail,
+          photoURL: myAccount.photoURL
+        },
+      })
+    }
+    return res.status(400).json({ success: false, message: 'Data is required' });
+
+  } catch (error) {
+    console.error(error);
+  }
+})
 
 //ลงทะเบียน
 router.post('/regis', async (req, res) => {
@@ -55,11 +114,11 @@ router.post('/regis', async (req, res) => {
       return res.status(400).json({ success: false, message: 'รหัสผ่านไม่ตรงกัน' });
     }
 
-    const checkUsername = await Account.findOne({username});
+    const checkUsername = await Account.findOne({ username });
     if (checkUsername) {
       return res.status(400).json({ success: false, message: 'Username นี้มีคนใช้ไปแล้ว :(' });
     }
-    const checkUserMail = await Account.findOne({mail});
+    const checkUserMail = await Account.findOne({ mail });
     if (checkUserMail) {
       return res.status(400).json({ success: false, message: 'Email นี้มีคนใช้ไปแล้ว :(' });
     }
@@ -81,38 +140,6 @@ router.post('/regis', async (req, res) => {
 
 })
 
-//เข้าสู่ระบบด้วย Google
-router.post('/googleAuth', async (req, res) => {
-  try {
-    const { displayName, email, uid, photoURL } = req.body;
-    if (displayName && email && uid && photoURL) {
-      if (typeof (displayName) !== 'string' && typeof (email) !== 'string' && typeof (uid) !== 'string' && typeof (photoURL) !== 'string') {
-        return res.status(400).json({ success: false, message: 'Data type is wrong' });
-      }
-      let myAccount = await Account.findOne({ googleId: uid });
-
-      if (!myAccount) {
-        const newAccount = new Account({ username: displayName, mail: email, photoURL, googleId: uid })
-        await newAccount.save();
-        myAccount = newAccount;
-      }
-
-      return res.json({
-        success: true, message: "เข้าสู่ระบบสำเร็จ",
-        user: {
-          id: myAccount.id,
-          username: myAccount.username,
-          mail: myAccount.mail,
-          photoURL: myAccount.photoURL
-        },
-      })
-    }
-    return res.status(400).json({ success: false, message: 'Data is required' });
-
-  } catch (error) {
-    console.error(error);
-  }
-})
 
 
 //ดึงบัญชีเดียว

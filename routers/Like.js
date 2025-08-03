@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Like = require('../models/LikeModel');
 
-router.post('/getLike', async (req, res) => {
+const verifyToken = require('../middleware/verifyToken');
+
+router.post('/getLike', verifyToken, async (req, res) => {
     const { postID, userID } = req.body;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
+    }
+    if (userID !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
@@ -30,19 +35,22 @@ router.get('/countLike/:postID', async (req, res) => {
     }
     try {
         const myCount = await Like.countDocuments({ postId: postID });
-        return res.json({ success: true, data: myCount });     
+        return res.json({ success: true, data: myCount });
     } catch (err) {
-    console.log(err);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
-}
+        console.log(err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
 
 });
 
-router.post('/addLike', async (req, res) => {
+router.post('/addLike', verifyToken, async (req, res) => {
     const { postID, userID } = req.body;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
+    }
+    if (userID !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
