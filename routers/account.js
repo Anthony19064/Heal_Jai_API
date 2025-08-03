@@ -184,4 +184,21 @@ router.get('/accounts', async (req, res) => {
 });
 
 
+router.get('/checkMail/:mail', async (req, res) => {
+  const { mail } = req.params;
+
+  if (!mail || typeof (mail) !== 'string') {
+    return res.status(400).json({ error: 'mail is required' });
+  }
+
+  const checkMail= await Account.findOne({ mail });
+  if(!checkMail){
+    return res.status(404).json({ success: false, message: "ไม่พบอีเมลนี้ในระบบ" });
+  }
+
+  return res.json({ success: true });
+
+})
+
+
 module.exports = router;
