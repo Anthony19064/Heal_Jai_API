@@ -185,7 +185,7 @@ router.get('/accounts', verifyToken, async (req, res) => {
 });
 
 
-router.get('/checkMail/:mail', verifyToken, async (req, res) => {
+router.get('/checkMail/:mail', async (req, res) => {
   const { mail } = req.params;
 
   if (!mail || typeof (mail) !== 'string') {
