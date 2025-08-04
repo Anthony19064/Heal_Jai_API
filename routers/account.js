@@ -10,7 +10,10 @@ const verifyToken = require('../middleware/verifyToken');
 
 const nodemailer = require('nodemailer');
 const redis = require('redis'); //เก็บ OTP
-const client = redis.createClient();
+const client = redis.createClient(
+  {
+    url: process.env.REDIS_URL,
+  });
 
 (async () => {
   try {
