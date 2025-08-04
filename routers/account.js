@@ -292,11 +292,16 @@ router.put('/ResetPassword', async (req, res) => {
       return res.status(400).json({ error: 'Password is required' });
     }
 
+    const account = await Account.findOne({ mail });
+    if(newPassword === account.password){
+      return res.status(200).json({ success: false, message: 'รหัสใหม่ของคุณเหมือนกับรหัสเก่า :(' });
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await Account.updateOne({ mail }, { $set: { password: hashedPassword } })
 
     return res.status(200).json({ success: true, message: 'เปลี่ยนรหัสผ่านเรียบร้อย :)' });
-    
+
   } catch (e) {
     return res.status(500).json({ success: false, message: e });
   }
