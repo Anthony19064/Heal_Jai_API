@@ -293,8 +293,10 @@ router.put('/ResetPassword', async (req, res) => {
     }
 
     const account = await Account.findOne({ mail });
-    if(newPassword === account.password){
-      return res.status(200).json({ success: false, message: 'รหัสใหม่ของคุณเหมือนกับรหัสเก่า :(' });
+    const isSame = await bcrypt.compare(newPassword, account.password);
+
+    if(isSame){
+      return res.status(400).json({ success: false, message: 'รหัสใหม่ของคุณเหมือนกับรหัสเก่า :(' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
