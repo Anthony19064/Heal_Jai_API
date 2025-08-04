@@ -197,7 +197,7 @@ router.get('/checkMail/:mail', async (req, res) => {
     return res.status(404).json({ success: false, message: "ไม่พบอีเมลนี้ในระบบ" });
   }
 
-  return res.json({ success: true });
+  return res.json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)"});
 
 })
 
