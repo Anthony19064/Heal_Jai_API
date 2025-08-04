@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const JWT_KEY = process.env.JWT_SECRET;
+const verifyToken = require('../middleware/verifyToken');
 
 //เข้าสู่ระบบ
 router.post('/login', async (req, res) => {
@@ -143,7 +144,7 @@ router.post('/regis', async (req, res) => {
 
 
 //ดึงบัญชีเดียว
-router.get('/getAccount/:postowner', async (req, res) => {
+router.get('/getAccount/:postowner', verifyToken, async (req, res) => {
   const { postowner } = req.params;
 
   if (!postowner || typeof (postowner) !== 'string') {
@@ -169,7 +170,7 @@ router.get('/getAccount/:postowner', async (req, res) => {
 
 
 //ดึงทุกบัญชี มีไว้ทำไมงงเหมือนกัน
-router.get('/accounts', async (req, res) => {
+router.get('/accounts', verifyToken, async (req, res) => {
   try {
     const users = await Account.find();  // ดึง document ทั้งหมด
     if (!users) {
@@ -184,7 +185,7 @@ router.get('/accounts', async (req, res) => {
 });
 
 
-router.get('/checkMail/:mail', async (req, res) => {
+router.get('/checkMail/:mail', verifyToken, async (req, res) => {
   const { mail } = req.params;
 
   if (!mail || typeof (mail) !== 'string') {
