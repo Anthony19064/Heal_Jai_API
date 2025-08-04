@@ -3,11 +3,23 @@ const router = express.Router();
 const Account = require('../models/accountModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const JWT_KEY = process.env.JWT_SECRET;
 const verifyToken = require('../middleware/verifyToken');
+
+const nodemailer = require('nodemailer');
+const redis = require('redis'); //เก็บ OTP
+const client = redis.createClient();
+
+(async () => {
+  try {
+    await client.connect();
+    console.log('Redis connected');
+  } catch (err) {
+    console.error('Redis connection failed:', err);
+  }
+})();
 
 //เข้าสู่ระบบ
 router.post('/login', async (req, res) => {
@@ -202,8 +214,10 @@ router.get('/checkMail/:mail', async (req, res) => {
 
 });
 
-router.get('/sendOTP/:mail', async (req, res) => {
-  const { mail } = req.params;
+
+router.post('/sendOTP', async (req, res) => {
+  const { mail } = req.body;
+
 
   try {
     if (!mail || typeof (mail) !== 'string') {
@@ -220,20 +234,49 @@ router.get('/sendOTP/:mail', async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    transporter.sendMail({
+    await transporter.sendMail({
       from: `"HealJai" <${process.env.EMAIL_APP}>`,
       to: mail,
       subject: 'รหัสยืนยันรีเซ็ตรหัสผ่าน',
       text: `รหัส OTP ของคุณคือ: ${otp}`,
     });
 
-    return res.status(200).json({sucees: true, message: "Send OTP Success"})
+    await client.set(`otp:${mail}`, otp, { EX: 300 });
+
+    return res.status(200).json({ success: true, message: "Send OTP Success" })
   } catch (e) {
-    return res.status(400).json({success: false, message: e });
+    return res.status(500).json({ success: false, message: e });
   }
 
-
 });
+
+
+router.post('/verifyOTP', async (req, res) => {
+  const { mail, otp } = req.body;
+
+  try {
+    if (!mail || typeof (mail) !== 'string') {
+      return res.status(400).json({ error: 'mail is required' });
+    }
+    if (!otp || typeof (otp) !== 'string') {
+      return res.status(400).json({ error: 'otp is required' });
+    }
+
+    const storedOtp = await client.get(`otp:${mail}`);
+    if (!storedOtp) {
+      return res.status(404).json({ success: false, message: 'ไม่พบรหัสยืนยันในระบบ' });
+    }
+    if (storedOtp !== otp) {
+      return res.status(401).json({ success: false, message: 'รหัสยืนยันไม่ถูกต้อง หรือ รหัสยืนยันหมดอายุ' });
+    }
+
+    await client.del(`otp:${mail}`);
+    return res.status(200).json({ success: true, message: 'รหัสยืนยันถูกต้อง' });
+
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e });
+  }
+})
 
 
 module.exports = router;
