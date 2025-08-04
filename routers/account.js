@@ -210,7 +210,7 @@ router.get('/checkMail/:mail', async (req, res) => {
     return res.status(404).json({ success: false, message: "ไม่พบอีเมลนี้ในระบบ" });
   }
 
-  return res.json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)" });
+  return res.json({ success: true, message: "พบอีเมลนี้ในระบบ" });
 
 });
 
@@ -243,7 +243,7 @@ router.post('/sendOTP', async (req, res) => {
 
     await client.set(`otp:${mail}`, otp, { EX: 300 });
 
-    return res.status(200).json({ success: true, message: "Send OTP Success" })
+    return res.status(200).json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)" })
   } catch (e) {
     return res.status(500).json({ success: false, message: e });
   }
