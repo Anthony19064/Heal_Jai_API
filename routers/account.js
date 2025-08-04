@@ -202,7 +202,7 @@ router.get('/checkMail/:mail', async (req, res) => {
 
 });
 
-router.post('/set_OTP/:mail', async (req, res) => {
+router.post('/sendOTP/:mail', async (req, res) => {
   const { mail } = req.params;
 
   if (!mail || typeof (mail) !== 'string') {
