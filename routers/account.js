@@ -3,6 +3,7 @@ const router = express.Router();
 const Account = require('../models/accountModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const JWT_KEY = process.env.JWT_SECRET;
@@ -192,12 +193,36 @@ router.get('/checkMail/:mail', async (req, res) => {
     return res.status(400).json({ error: 'mail is required' });
   }
 
-  const checkMail= await Account.findOne({ mail });
-  if(!checkMail){
+  const checkMail = await Account.findOne({ mail });
+  if (!checkMail) {
     return res.status(404).json({ success: false, message: "ไม่พบอีเมลนี้ในระบบ" });
   }
 
-  return res.json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)"});
+  return res.json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)" });
+
+});
+
+router.post('/set_OTP/:mail', async (req, res) => {
+  const { mail } = req.params;
+
+  if (!mail || typeof (mail) !== 'string') {
+    return res.status(400).json({ error: 'mail is required' });
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_APP,
+      pass: process.env.EMAIL_PASS, 
+    },
+  });
+
+  transporter.sendMail({
+  from: `"MyApp" <${process.env.EMAIL_APP}>`,
+  to: 'habashieieina@gmail.com',
+  subject: 'รหัส OTP ของคุณ',
+  text: `รหัส OTP ของคุณคือ: 123456`, 
+});
 
 })
 
