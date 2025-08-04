@@ -267,7 +267,7 @@ router.post('/verifyOTP', async (req, res) => {
 
     const storedOtp = await client.get(`otp:${mail}`);
     if (!storedOtp) {
-      return res.status(404).json({ success: false, message: 'ไม่พบรหัสยืนยันในระบบ' });
+      return res.status(404).json({ success: false, message: 'รหัสยืนยันหมดอายุ' });
     }
     if (storedOtp !== otp) {
       return res.status(401).json({ success: false, message: 'รหัสยืนยันไม่ถูกต้อง หรือ รหัสยืนยันหมดอายุ' });
@@ -279,7 +279,30 @@ router.post('/verifyOTP', async (req, res) => {
   } catch (e) {
     return res.status(500).json({ success: false, message: e });
   }
-})
+});
+
+
+router.put('/ResetPassword', async (req, res) => {
+  const { mail, newPassword } = req.body;
+  try {
+    if (!mail || typeof (mail) !== 'string') {
+      return res.status(400).json({ error: 'mail is required' });
+    }
+    if (!newPassword || typeof (newPassword) !== 'string') {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await Account.updateOne({ mail }, { $set: { password: hashedPassword } })
+
+    return res.status(200).json({ success: true, message: 'เปลี่ยนรหัสผ่านเรียบร้อย :)' });
+    
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e });
+  }
+});
+
+
 
 
 module.exports = router;
