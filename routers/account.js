@@ -202,29 +202,38 @@ router.get('/checkMail/:mail', async (req, res) => {
 
 });
 
-router.post('/sendOTP/:mail', async (req, res) => {
+router.get('/sendOTP/:mail', async (req, res) => {
   const { mail } = req.params;
 
-  if (!mail || typeof (mail) !== 'string') {
-    return res.status(400).json({ error: 'mail is required' });
+  try {
+    if (!mail || typeof (mail) !== 'string') {
+      return res.status(400).json({ error: 'mail is required' });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_APP,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    transporter.sendMail({
+      from: `"HealJai" <${process.env.EMAIL_APP}>`,
+      to: mail,
+      subject: 'รหัสยืนยันรีเซ็ตรหัสผ่าน',
+      text: `รหัส OTP ของคุณคือ: ${otp}`,
+    });
+
+    return res.status(200).json({sucees: true, message: "Send OTP Success"})
+  } catch (e) {
+    return res.status(400).json({success: false, message: e });
   }
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_APP,
-      pass: process.env.EMAIL_PASS, 
-    },
-  });
 
-  transporter.sendMail({
-  from: `"MyApp" <${process.env.EMAIL_APP}>`,
-  to: 'habashieieina@gmail.com',
-  subject: 'รหัส OTP ของคุณ',
-  text: `รหัส OTP ของคุณคือ: 123456`, 
 });
-
-})
 
 
 module.exports = router;
