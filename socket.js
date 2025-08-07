@@ -89,9 +89,9 @@ module.exports = (io) => {
     socket.on('endChat', () => {
       if (socket.roomId) {
         //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
-        socket.to(socket.roomId).emit('chatDisconnected');
+        io.to(socket.roomId).emit('chatDisconnected');
       }
-      
+
       if (socket.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
       } else if (socket.role === 'talker') {
