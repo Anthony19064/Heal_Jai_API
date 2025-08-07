@@ -26,8 +26,8 @@ function match() {
         talker.join(roomId);
 
         //ส่ง event matched ให้แต่ละ Socket
-        listener.emit('matched', { roomId });
-        talker.emit('matched', { roomId });
+        listener.emit('matched', roomId );
+        talker.emit('matched', roomId );
 
       } else {
         //ลบออกจาก Queue 
