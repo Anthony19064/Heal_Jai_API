@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Comment = require('../models/commentModel');
 
+const verifyToken = require('../middleware/verifyToken');
+
 
 router.get('/countComment/:postID', async (req, res) => {
     const { postID } = req.params
@@ -36,10 +38,13 @@ router.get('/getComment/:postID', async (req, res) => {
 });
 
 
-router.post('/addComment', async (req, res) => {
+router.post('/addComment', verifyToken, async (req, res) => {
     const { postID, userId, commentInfo } = req.body;
     if (!postID || !userId || !commentInfo || typeof (postID) !== 'string' || typeof (userId) !== 'string' || typeof (commentInfo) !== 'string') {
         return res.status(400).json({ error: 'postID, userId, commentInfo is required' });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
     try {
         const newComment = new Comment({

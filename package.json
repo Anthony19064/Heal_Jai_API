@@ -6,7 +6,10 @@
     "express": "^5.1.0",
     "firebase": "^11.7.1",
     "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.0",
+    "nodemailer": "^7.0.5",
+    "redis": "^5.7.0",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
