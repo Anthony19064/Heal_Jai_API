@@ -78,9 +78,9 @@ module.exports = (io) => {
       } else if (socket.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
-      print('ยกเลิกจับคู่แล้วจ้า');
-      print(listenersQueue);
-      print(talkersQueue);
+      console.log('ยกเลิกจับคู่แล้วจ้า');
+      console.log(listenersQueue);
+      console.log(talkersQueue);
     });
 
     //รับข้อความจากในห้อง User
