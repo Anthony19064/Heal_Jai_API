@@ -26,8 +26,8 @@ function match() {
         talker.join(roomId);
 
         //ส่ง event matched ให้แต่ละ Socket
-        listener.emit('matched', roomId );
-        talker.emit('matched', roomId );
+        listener.emit('matched', roomId);
+        talker.emit('matched', roomId);
 
       } else {
         //ลบออกจาก Queue 
@@ -44,7 +44,7 @@ function match() {
 
       }
     }
-    
+
     //ถ้ายังตรงเงื่อนไขจะทำการจับคู่ต่อไป จนกว่าจะไม่ตรงเงื่อนไข
     if (listenersQueue.length > 0 && talkersQueue.length > 0) {
       setImmediate(loopMatch);
@@ -70,6 +70,17 @@ module.exports = (io) => {
       }
       match();
 
+    });
+
+    socket.on('cancleRegister', () => {
+      if (socket.role === 'listener') {
+        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+      } else if (socket.role === 'talker') {
+        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+      }
+      print('ยกเลิกจับคู่แล้วจ้า');
+      print(listenersQueue);
+      print(talkersQueue);
     });
 
     //รับข้อความจากในห้อง User
