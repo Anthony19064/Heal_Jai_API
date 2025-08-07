@@ -78,9 +78,6 @@ module.exports = (io) => {
       } else if (socket.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
-      console.log('ยกเลิกจับคู่แล้วจ้า');
-      console.log(listenersQueue);
-      console.log(talkersQueue);
     });
 
     //รับข้อความจากในห้อง User
@@ -89,12 +86,21 @@ module.exports = (io) => {
       socket.to(roomId).emit('receiveMessage', ({ message, sender: "other", time, role }));
     });
 
-    //ตัดการเชื่อมต่อ
-    socket.on('disconnect', () => {
+    socket.on('endChat', () => {
       if (socket.roomId) {
         //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
         socket.to(socket.roomId).emit('chatDisconnected');
       }
+      
+      if (socket.role === 'listener') {
+        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+      } else if (socket.role === 'talker') {
+        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+      }
+    })
+
+    //ตัดการเชื่อมต่อ
+    socket.on('disconnect', () => {
 
       if (socket.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
