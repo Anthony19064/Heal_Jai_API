@@ -82,7 +82,6 @@ module.exports = (io) => {
 
     //รับข้อความจากในห้อง User
     socket.on('sendMessage', ({ roomId, message, time, role }) => {
-      console.log(message);
       //ส่งข้อความไปยังห้อง User
       socket.to(roomId).emit('receiveMessage', ({ message, sender: "other", time, role }));
     });
@@ -92,7 +91,7 @@ module.exports = (io) => {
         //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
         socket.to(socket.roomId).emit('chatDisconnected');
       }
-      
+
       if (socket.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
       } else if (socket.role === 'talker') {
@@ -102,6 +101,10 @@ module.exports = (io) => {
 
     //ตัดการเชื่อมต่อ
     socket.on('disconnect', () => {
+      if (socket.roomId) {
+        //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
+        socket.to(socket.roomId).emit('chatDisconnected');
+      }
 
       if (socket.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
