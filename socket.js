@@ -82,6 +82,7 @@ module.exports = (io) => {
 
     //รับข้อความจากในห้อง User
     socket.on('sendMessage', ({ roomId, message, time, role }) => {
+      console.log(message);
       //ส่งข้อความไปยังห้อง User
       socket.to(roomId).emit('receiveMessage', ({ message, sender: "other", time, role }));
     });
