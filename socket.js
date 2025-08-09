@@ -70,6 +70,9 @@ module.exports = (io) => {
       }
       match();
 
+      console.log(talkersQueue);
+      console.log(listenersQueue)
+
     });
 
     socket.on('cancleRegister', () => {
