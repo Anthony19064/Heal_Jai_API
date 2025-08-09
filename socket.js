@@ -18,8 +18,8 @@ function match() {
       const roomId = `${listener.id}#${talker.id}`;
       if (listener.connected && talker.connected) {
         //เพิ่มตัวแปร roomId ให้แต่ละ Socket
-        listener.roomId = roomId;
-        talker.roomId = roomId;
+        listener.data.roomId = roomId;
+        talker.data.roomId = roomId;
 
         //join แต่ละ Socket เข้า roomId
         listener.join(roomId);
@@ -61,11 +61,11 @@ module.exports = (io) => {
 
     //เพิ่มรายชื่อลง queue
     socket.on('register', (role) => {
-      socket.role = role;
+      socket.data.role = role;
 
-      if (role === 'talker') {
+      if (role === 'talker' && !talkersQueue.find(s => s.id === socket.id)) {
         talkersQueue.push(socket);
-      } else if (role === 'listener') {
+      } else if (role === 'listener' && !listenersQueue.find(s => s.id === socket.id)) {
         listenersQueue.push(socket);
       }
       console.log(talkersQueue);
@@ -76,9 +76,9 @@ module.exports = (io) => {
     });
 
     socket.on('cancleRegister', () => {
-      if (socket.role === 'listener') {
+      if (socket.data.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.role === 'talker') {
+      } else if (socket.data.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
     });
@@ -90,28 +90,31 @@ module.exports = (io) => {
     });
 
     socket.on('endChat', () => {
-      if (socket.roomId) {
+      if (socket.data.roomId) {
         //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
-        socket.to(socket.roomId).emit('chatDisconnected');
+        socket.to(socket.data.roomId).emit('chatDisconnected');
+        socket.leave(socket.data.roomId); 
+        socket.data.roomId = null;
       }
 
-      if (socket.role === 'listener') {
+      if (socket.data.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.role === 'talker') {
+      } else if (socket.data.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
+
     })
 
     //ตัดการเชื่อมต่อ
     socket.on('disconnect', () => {
-      if (socket.roomId) {
+      if (socket.data.roomId) {
         //ส่ง event ไปให้ คู่สนทนาให้ตัดการเชื่อมต่อ
-        socket.to(socket.roomId).emit('chatDisconnected');
+        socket.to(socket.data.roomId).emit('chatDisconnected');
       }
 
-      if (socket.role === 'listener') {
+      if (socket.data.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.role === 'talker') {
+      } else if (socket.data.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
 
