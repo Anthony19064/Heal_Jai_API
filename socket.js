@@ -59,6 +59,15 @@ function match() {
 module.exports = (io) => {
   io.on('connection', (socket) => {
 
+    socket.on('error', (error) => {
+      console.error('Socket Error Details:', {
+        message: error.message,
+        code: error.code,
+        type: error.type,
+        timestamp: new Date().toISOString()
+      });
+    });
+
     //เพิ่มรายชื่อลง queue
     socket.on('register', (role) => {
       socket.role = role;
@@ -85,7 +94,7 @@ module.exports = (io) => {
     //รับข้อความจากในห้อง User
     socket.on('sendMessage', ({ roomId, message, time, role }) => {
       //ส่งข้อความไปยังห้อง User
-      socket.to(roomId).emit('receiveMessage', ({ message, sender: "other", time, role }));
+      socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
     });
 
     socket.on('endChat', () => {
@@ -117,18 +126,7 @@ module.exports = (io) => {
       match();
     });
 
-    socket.on('error', (error) => {
-      console.error('Socket Error Details:', {
-        message: error.message,
-        code: error.code,
-        type: error.type,
-        timestamp: new Date().toISOString()
-      });
-    });
 
-    // ตรวจสอบ connection status
-    console.log('Socket connected:', socket.connected);
-    console.log('Socket ID:', socket.id);
 
   });
 
