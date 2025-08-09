@@ -115,19 +115,20 @@ module.exports = (io) => {
       match();
     });
 
-  });
-
-  socket.on('error', (error) => {
-    console.error('Socket Error Details:', {
-      message: error.message,
-      code: error.code,
-      type: error.type,
-      timestamp: new Date().toISOString()
+    socket.on('error', (error) => {
+      console.error('Socket Error Details:', {
+        message: error.message,
+        code: error.code,
+        type: error.type,
+        timestamp: new Date().toISOString()
+      });
     });
+
+    // ตรวจสอบ connection status
+    console.log('Socket connected:', socket.connected);
+    console.log('Socket ID:', socket.id);
+
   });
 
-  // ตรวจสอบ connection status
-  console.log('Socket connected:', socket.connected);
-  console.log('Socket ID:', socket.id);
 
 };
