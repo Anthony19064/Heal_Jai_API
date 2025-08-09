@@ -68,10 +68,10 @@ module.exports = (io) => {
       } else if (role === 'listener') {
         listenersQueue.push(socket);
       }
+      console.log(talkersQueue);
+      console.log(listenersQueue);
       match();
 
-      console.log(talkersQueue);
-      console.log(listenersQueue)
 
     });
 
