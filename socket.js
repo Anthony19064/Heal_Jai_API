@@ -7,37 +7,52 @@ function match() {
   matchStatus = true;
 
   (function loopMatch() {
-    while (listenersQueue.length > 0 && talkersQueue.length > 0) {
-      const listener = listenersQueue.shift();
-      const talker = talkersQueue.shift();
+    try {
+      while (listenersQueue.length > 0 && talkersQueue.length > 0) {
+        const listener = listenersQueue.shift();
+        const talker = talkersQueue.shift();
 
-      const roomId = `${listener.id}#${talker.id}`;
-      if (listener.connected && talker.connected) {
-        listener.data.roomId = roomId;  // ← เปลี่ยนจาก listener.roomId
-        talker.data.roomId = roomId;    // ← เปลี่ยนจาก talker.roomId
+        // เช็คว่า socket ยัง connected, ไม่ถูก match ไปแล้ว และไม่ใช่ socket เดียวกัน
+        if (
+          listener.connected &&
+          talker.connected &&
+          !listener.data.roomId &&
+          !talker.data.roomId &&
+          listener.id !== talker.id
+        ) {
+          const roomId = `${listener.id}#${talker.id}`;
+          listener.data.roomId = roomId;
+          talker.data.roomId = roomId;
 
-        listener.join(roomId);
-        talker.join(roomId);
+          listener.join(roomId);
+          talker.join(roomId);
 
-        listener.emit('matched', roomId);
-        talker.emit('matched', roomId);
-      } else {
-        listenersQueue = listenersQueue.filter(s => s.id !== listener.id);
-        talkersQueue = talkersQueue.filter(s => s.id !== talker.id);
+          listener.emit('matched', roomId);
+          talker.emit('matched', roomId);
+        } else {
+          // ลบ socket ที่หลุดออกจาก queue
+          listenersQueue = listenersQueue.filter(s => s.id !== listener.id);
+          talkersQueue = talkersQueue.filter(s => s.id !== talker.id);
 
-        if (!listener.connected && talker.connected) {
-          talkersQueue.push(talker);
-        }
-        if (!talker.connected && listener.connected) {
-          listenersQueue.push(listener);
+          // ถ้ายัง connected แต่ match ไม่สำเร็จ ให้กลับเข้า queue
+          if (!listener.data.roomId && listener.connected) listenersQueue.push(listener);
+          if (!talker.data.roomId && talker.connected) talkersQueue.push(talker);
+
+          // emit event สำหรับ debug
+          if (!listener.connected || !talker.connected || listener.id === talker.id) {
+            if (listener.connected) listener.emit('matchFailed');
+            if (talker.connected) talker.emit('matchFailed');
+          };
         }
       }
-    }
-
-    if (listenersQueue.length > 0 && talkersQueue.length > 0) {
-      setImmediate(loopMatch);
-    } else {
-      matchStatus = false;
+    } catch (err) {
+      console.error('Match error:', err);
+    } finally {
+      if (listenersQueue.length > 0 && talkersQueue.length > 0) {
+        setImmediate(loopMatch);
+      } else {
+        matchStatus = false;
+      }
     }
   })();
 }
@@ -45,26 +60,27 @@ function match() {
 module.exports = (io) => {
   io.on('connection', (socket) => {
 
-    //เพิ่มรายชื่อลง queue
+    // เพิ่มรายชื่อลง queue แบบไม่ซ้ำ
     socket.on('register', (role) => {
-      socket.data.role = role;  // ← เปลี่ยนจาก socket.role
+      socket.data.role = role;
+      socket.data.roomId = null;
+
+      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
 
       if (role === 'talker') {
         talkersQueue.push(socket);
       } else if (role === 'listener') {
         listenersQueue.push(socket);
       }
-      console.log('Talkers:', talkersQueue.length);
-      console.log('Listeners:', listenersQueue.length);
+
       match();
     });
 
-    socket.on('cancleRegister', () => {
-      if (socket.data.role === 'listener') {  // ← เปลี่ยนจาก socket.role
-        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.data.role === 'talker') {  // ← เปลี่ยนจาก socket.role
-        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-      }
+    socket.on('cancelRegister', () => {
+      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+      socket.data.roomId = null;
     });
 
     socket.on('sendMessage', ({ roomId, message, time, role }) => {
@@ -72,28 +88,24 @@ module.exports = (io) => {
     });
 
     socket.on('endChat', () => {
-      if (socket.data.roomId) {  // ← เปลี่ยนจาก socket.roomId
+      if (socket.data.roomId) {
         socket.to(socket.data.roomId).emit('chatDisconnected');
       }
-
-      if (socket.data.role === 'listener') {  // ← เปลี่ยนจาก socket.role
+      if (socket.data.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.data.role === 'talker') {  // ← เปลี่ยนจาก socket.role
+      } else if (socket.data.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
       }
+      socket.data.roomId = null;
     });
 
     socket.on('disconnect', () => {
-      if (socket.data.roomId) {  // ← เปลี่ยนจาก socket.roomId
+      if (socket.data.roomId) {
         socket.to(socket.data.roomId).emit('chatDisconnected');
       }
-
-      if (socket.data.role === 'listener') {  // ← เปลี่ยนจาก socket.role
-        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.data.role === 'talker') {  // ← เปลี่ยนจาก socket.role
-        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-      }
-
+      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+      socket.data.roomId = null;
       match();
     });
 
