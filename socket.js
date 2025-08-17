@@ -60,6 +60,7 @@ function match() {
 module.exports = (io) => {
   io.on('connection', (socket) => {
     const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
+    console.log(token);
 
     if (!token) {
       socket.emit('unauthorized', 'No token provided');
