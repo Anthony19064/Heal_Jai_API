@@ -1,5 +1,9 @@
-let listenersQueue = []; // ผู้รับฟัง
-let talkersQueue = [];   // ผู้ระบาย
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const JWT_KEY = process.env.JWT_SECRET;
+
+let listenersQueue = [];
+let talkersQueue = [];
 let matchStatus = false;
 
 function match() {
@@ -12,7 +16,6 @@ function match() {
         const listener = listenersQueue.shift();
         const talker = talkersQueue.shift();
 
-        // เช็คว่า socket ยัง connected, ไม่ถูก match ไปแล้ว และไม่ใช่ socket เดียวกัน
         if (
           listener.connected &&
           talker.connected &&
@@ -30,19 +33,16 @@ function match() {
           listener.emit('matched', roomId);
           talker.emit('matched', roomId);
         } else {
-          // ลบ socket ที่หลุดออกจาก queue
           listenersQueue = listenersQueue.filter(s => s.id !== listener.id);
           talkersQueue = talkersQueue.filter(s => s.id !== talker.id);
 
-          // ถ้ายัง connected แต่ match ไม่สำเร็จ ให้กลับเข้า queue
           if (!listener.data.roomId && listener.connected) listenersQueue.push(listener);
           if (!talker.data.roomId && talker.connected) talkersQueue.push(talker);
 
-          // emit event สำหรับ debug
           if (!listener.connected || !talker.connected || listener.id === talker.id) {
             if (listener.connected) listener.emit('matchFailed');
             if (talker.connected) talker.emit('matchFailed');
-          };
+          }
         }
       }
     } catch (err) {
@@ -59,55 +59,69 @@ function match() {
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
+    const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
 
-    // เพิ่มรายชื่อลง queue แบบไม่ซ้ำ
-    socket.on('register', (role) => {
-      socket.data.role = role;
-      socket.data.roomId = null;
+    if (!token) {
+      socket.emit('unauthorized', 'No token provided');
+      socket.disconnect();
+      return;
+    }
 
-      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-
-      if (role === 'talker') {
-        talkersQueue.push(socket);
-      } else if (role === 'listener') {
-        listenersQueue.push(socket);
+    jwt.verify(token, JWT_KEY, (err, decoded) => {
+      if (err) {
+        socket.emit('unauthorized', 'Invalid token');
+        socket.disconnect();
+        return;
       }
+      socket.user = decoded; // เก็บข้อมูล user ใน socket
 
-      match();
-    });
+      socket.on('register', (role) => {
+        socket.data.role = role;
+        socket.data.roomId = null;
 
-    socket.on('cancelRegister', () => {
-      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-      socket.data.roomId = null;
-    });
-
-    socket.on('sendMessage', ({ roomId, message, time, role }) => {
-      socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
-    });
-
-    socket.on('endChat', () => {
-      if (socket.data.roomId) {
-        socket.to(socket.data.roomId).emit('chatDisconnected');
-      }
-      if (socket.data.role === 'listener') {
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      } else if (socket.data.role === 'talker') {
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-      }
-      socket.data.roomId = null;
-    });
 
-    socket.on('disconnect', () => {
-      if (socket.data.roomId) {
-        socket.to(socket.data.roomId).emit('chatDisconnected');
-      }
-      listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
-      talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
-      socket.data.roomId = null;
-      match();
-    });
+        if (role === 'talker') {
+          talkersQueue.push(socket);
+        } else if (role === 'listener') {
+          listenersQueue.push(socket);
+        }
 
+        match();
+      });
+
+      socket.on('cancelRegister', () => {
+        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+        socket.data.roomId = null;
+      });
+
+      socket.on('sendMessage', ({ roomId, message, time, role }) => {
+        socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
+      });
+
+      socket.on('endChat', () => {
+        if (socket.data.roomId) {
+          socket.to(socket.data.roomId).emit('chatDisconnected');
+        }
+        if (socket.data.role === 'listener') {
+          listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+        } else if (socket.data.role === 'talker') {
+          talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+        }
+        socket.data.roomId = null;
+      });
+
+      socket.on('disconnect', () => {
+        if (socket.data.roomId) {
+          socket.to(socket.data.roomId).emit('chatDisconnected');
+        }
+        listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
+        talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
+        socket.data.roomId = null;
+        match();
+      });
+    });
   });
 };
