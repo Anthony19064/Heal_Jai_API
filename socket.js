@@ -64,6 +64,7 @@ module.exports = (io) => {
     if (!token) {
       socket.emit('unauthorized', 'No token provided');
       socket.disconnect();
+      console.log('No token provided');
       return;
     }
 
@@ -71,6 +72,7 @@ module.exports = (io) => {
       if (err) {
         socket.emit('unauthorized', 'Invalid token');
         socket.disconnect();
+        console.log('No token provided');
         return;
       }
       socket.user = decoded; // เก็บข้อมูล user ใน socket
