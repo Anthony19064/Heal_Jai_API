@@ -5,7 +5,8 @@ const StoryDiary = require('../models/diaryStoryModel');
 const verifyToken = require('../middleware/verifyToken');
 
 router.post('/addDiaryStory', verifyToken, async (req, res) => {
-    const { userId, storyValue } = req.body;
+    const { storyValue } = req.body;
+    const userId = req.user.id;
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -44,6 +45,6 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
     }
 
 
-})
+});
 
 module.exports = router;
