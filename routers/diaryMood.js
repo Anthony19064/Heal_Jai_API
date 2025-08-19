@@ -6,7 +6,8 @@ const verifyToken = require('../middleware/verifyToken');
 
 
 router.post('/addDiaryMood', verifyToken, async (req, res) => {
-    const { userId, moodValue } = req.body;
+    const { moodValue } = req.body;
+    const userId = req.user.id;
 
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
