@@ -6,6 +6,6 @@ const StoryDiarySchema = new mongoose.Schema({
   value : [String],
 }, { versionKey: false });
 
-const StoryDiary = mongoose.model('moodDiary', StoryDiarySchema);
+const StoryDiary = mongoose.model('storyDiary', StoryDiarySchema);
 
 module.exports = StoryDiary;
