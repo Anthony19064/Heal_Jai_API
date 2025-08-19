@@ -5,7 +5,7 @@ const MoodDiary = require('../models/diaryMoodModel');
 const verifyToken = require('../middleware/verifyToken');
 
 
-router.post('addDiaryMood', verifyToken, async (req, res) => {
+router.post('/addDiaryMood', verifyToken, async (req, res) => {
     const { userId, moodValue } = req.body;
 
     const startOfDay = new Date();
