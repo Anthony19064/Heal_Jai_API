@@ -16,7 +16,7 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
 
     const CheckToday = await QuestionDiary.findOne({ userID: userId, dateAt: { $gte: startOfDay, $lt: endOfDay } });
 
-    if (storyValue.length == 0) {
+    if (!answer || typeof (answer) !== 'string') {
         return res.json({ success: false, message: "กรุณาเพิ่มคำตอบ" });
     }
     if (CheckToday) {
