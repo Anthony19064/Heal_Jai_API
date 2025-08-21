@@ -230,17 +230,25 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
-    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+    // คิดตามเวลาไทย
+    const startOfDayThai = dayjs.tz(`${selectedDate} 00:00:00`, 'Asia/Bangkok');
+    const endOfDayThai = dayjs.tz(`${selectedDate} 23:59:59.999`, 'Asia/Bangkok');
+
+    // เอามาใช้ใน MongoDB (จะกลายเป็น UTC timestamp อัตโนมัติ)
+    const start = startOfDayThai.toDate(); // = 2025-08-21T17:00:00.000Z
+    const end = endOfDayThai.toDate();     // = 2025-08-22T16:59:59.999Z
 
     console.log(startOfDay);
     console.log(endOfDay);
 
+    console.log(start);
+    console.log(end);
+
     const diary = await Diary.findOne({
         userId: userId,
         createdAt: {
-            $gte: startOfDay,
-            $lte: endOfDay
+            $gte: start,
+            $lte: end
         }
     });
 
