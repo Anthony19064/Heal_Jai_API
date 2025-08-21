@@ -9,7 +9,13 @@ const DiarySchema = new mongoose.Schema({
     createdAt: Date,
     mood: {
         value: {
-            type: [String],
+            type: [
+                {
+                    time: {
+                        type: Date,
+                        default: () => new Date()
+                    },  mood: String
+                }],
             default: []
         }
     },

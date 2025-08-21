@@ -36,7 +36,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
         if (diary) {
             if (!diary.mood) diary.mood = { value: [] };
             if (!diary.mood.value) diary.mood.value = [];
-            diary.mood.value.push(moodValue);
+            diary.mood.value.push({mood: moodValue});
             await diary.save();
 
             return res.json({ success: true, message: "บันทึกอารมณ์สำเร็จ" });
@@ -46,7 +46,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
             userID: userId,
             createdAt: new Date(),
             mood: {
-                value: [moodValue]  // เก็บเป็น array ตาม schema
+                value: [{mood: moodValue}]  
             },
         });
         await newDiary.save();
