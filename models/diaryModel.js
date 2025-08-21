@@ -1,11 +1,4 @@
 const mongoose = require('mongoose');
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 
 const DiarySchema = new mongoose.Schema({
     userID: {
@@ -15,7 +8,7 @@ const DiarySchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: () => dayjs().tz("Asia/Bangkok").toDate()
+        default: () => new Date()
     },
     mood: {
         value: {

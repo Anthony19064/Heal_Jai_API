@@ -195,7 +195,7 @@ router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
 
         // ดึงเฉพาะวันที่ (แปลงเป็น 'YYYY-MM-DD')
         const uniqueDatesSet = new Set(
-            DiaryHistory.map(d => d.createdAt.toISOString().split('T')[0])
+            DiaryHistory.map(d => dayjs(d.createdAt).tz('Asia/Bangkok').format('YYYY-MM-DD'))
         );
 
         // แปลง set เป็น array
