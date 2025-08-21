@@ -13,7 +13,7 @@ dayjs.extend(timezone);
 
 //เพิ่มอารมณ์
 router.post('/addDiaryMood', verifyToken, async (req, res) => {
-    const { moodValue } = req.body;
+    const { moodValue, textUser } = req.body;
     const userId = req.user.id;
 
     if (!moodValue || typeof (moodValue) !== 'string') {
@@ -43,7 +43,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
         if (diary) {
             if (!diary.mood) diary.mood = { value: [] };
             if (!diary.mood.value) diary.mood.value = [];
-            diary.mood.value.push({ mood: moodValue });
+            diary.mood.value.push({ mood: moodValue, text: textUser });
             await diary.save();
 
             return res.json({ success: true, message: "บันทึกอารมณ์สำเร็จ" });
@@ -52,7 +52,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
         const newDiary = new Diary({
             userID: userId,
             mood: {
-                value: [{ mood: moodValue }]
+                value: [{ mood: moodValue, text: textUser }]
             },
         });
         await newDiary.save();
