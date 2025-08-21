@@ -243,10 +243,10 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
     });
 
     if (!diary) {
-            return res.status(404).json({ success: false, message: "Diary not found" });
-        }
+        return res.status(404).json({ success: false, message: "Diary not found" });
+    }
 
-        return res.status(200).json({ success: true, data: diary });
+    return res.status(200).json({ success: true, data: diary });
 
 });
 
