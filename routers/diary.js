@@ -58,7 +58,6 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
 
 });
 
-
 //เพิ่มคำตอบ
 router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
     const { userQuestion, userAnswer } = req.body;
@@ -117,7 +116,6 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
 
 });
 
-
 //เพิ่มเรื่องราว
 router.post('/addDiaryStory', verifyToken, async (req, res) => {
     const { storyValue } = req.body;
@@ -170,10 +168,6 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
 
 
 });
-
-
-
-
 
 router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
     const userId = req.user.id;
