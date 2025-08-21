@@ -30,7 +30,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
 
         let diary = await Diary.findOne({
             userID: userId,
-            dateAt: { $gte: startOfDay, $lt: endOfDay }
+            createdAt: { $gte: startOfDay, $lt: endOfDay }
         });
 
         if (diary) {
@@ -44,7 +44,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            dateAt: new Date(),
+            createdAt: new Date(),
             mood: {
                 value: [moodValue]  // เก็บเป็น array ตาม schema
             },
@@ -86,7 +86,7 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
     try {
         let diary = await Diary.findOne({
             userID: userId,
-            dateAt: { $gte: startOfDay, $lt: endOfDay }
+            createdAt: { $gte: startOfDay, $lt: endOfDay }
         });
 
         if (diary) {
@@ -103,7 +103,7 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            dateAt: new Date(),
+            createdAt: new Date(),
             question: {
                 question: userQuestion,
                 answer: userAnswer,
@@ -144,7 +144,7 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
     try {
         let diary = await Diary.findOne({
             userID: userId,
-            dateAt: { $gte: startOfDay, $lt: endOfDay }
+            createdAt: { $gte: startOfDay, $lt: endOfDay }
         });
 
         if (diary) {
@@ -158,7 +158,7 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            dateAt: new Date(),
+            createdAt: new Date(),
             story: {
                 value: storyValue  
             },
