@@ -36,7 +36,7 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
         if (diary) {
             if (!diary.mood) diary.mood = { value: [] };
             if (!diary.mood.value) diary.mood.value = [];
-            diary.mood.value.push({mood: moodValue});
+            diary.mood.value.push({ mood: moodValue });
             await diary.save();
 
             return res.json({ success: true, message: "บันทึกอารมณ์สำเร็จ" });
@@ -44,9 +44,8 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            createdAt: new Date(),
             mood: {
-                value: [{mood: moodValue}]  
+                value: [{ mood: moodValue }]
             },
         });
         await newDiary.save();
@@ -103,7 +102,6 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            createdAt: new Date(),
             question: {
                 question: userQuestion,
                 answer: userAnswer,
@@ -158,9 +156,8 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
 
         const newDiary = new Diary({
             userID: userId,
-            createdAt: new Date(),
             story: {
-                value: storyValue  
+                value: storyValue
             },
         });
         await newDiary.save();
@@ -178,33 +175,46 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
 
 
 
-// router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
-//     const userId = req.user.id;
-//     const year = parseInt(req.params.year);
-//     const month = parseInt(req.params.month);
+router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
+    const userId = req.user.id;
+    const year = parseInt(req.params.year);
+    const month = parseInt(req.params.month);
 
-//     const startDate = new Date(Date.UTC(year, month - 1, 1));
-//     const endDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
+    if (!userId || typeof (userId) !== 'string') {
+        return res.status(400).json({ success: false, message: "userId is required" });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
+    }
 
-//     try {
-//         const [moods, questions, stories] = await Promise.all([
-//             MoodDiary.find({ userId, date: { $gte: startDate, $lte: endDate } }),
-//             QuestionDiary.find({ userId, date: { $gte: startDate, $lte: endDate } }),
-//             StoryDiary.find({ userId, date: { $gte: startDate, $lte: endDate } }),
-//         ]);
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
-//         const allDates = [...moods, ...questions, ...stories]
-//             .map(item => new Date(item.date).toISOString().split('T')[0]) // '2025-08-19'
-//             .filter((v, i, self) => self.indexOf(v) === i); // remove duplicates
+    try {
+        const DiaryHistory = await Diary.find({
+            userID: userId,
+            createdAt: {
+                $gte: startDate,
+                $lte: endDate,
+            },
+        });
 
-//         res.json(allDates);
+        // ดึงเฉพาะวันที่ (แปลงเป็น 'YYYY-MM-DD')
+        const uniqueDatesSet = new Set(
+            diaryHistory.map(d => d.createdAt.toISOString().split('T')[0])
+        );
 
-//     } catch (error) {
-//         console.error(err);
-//         res.status(500).json({ error: 'Server error' });
-//     }
+        // แปลง set เป็น array
+        const uniqueDatesArray = Array.from(uniqueDatesSet).sort();
 
-// });
+        return res.json({ success: true, dates: uniqueDatesArray });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+
+});
 
 
 module.exports = router;
