@@ -142,4 +142,30 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
 });
 
 
+
+
+// router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
+//     const userId = req.user.id;
+//     const year = parseInt(req.params.year);
+//     const month = parseInt(req.params.month);
+
+//     const startDate = new Date(Date.UTC(year, month, 1));
+//     const endDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
+
+//     const query = {
+//       userId,
+//       date: { $gte: startDate, $lt: endDate }
+//     };
+
+//     const [emotions, questions, stories] = await Promise.all([
+//       MoodDiary.find(query),
+//       StoryDiary.find(query),
+//       QuestionDiary.find(query),
+//     ]);
+
+//     const result = {};
+
+// });
+
+
 module.exports = router;
