@@ -7,6 +7,7 @@ const verifyToken = require('../middleware/verifyToken');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
+const { verify } = require('jsonwebtoken');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -214,6 +215,38 @@ router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
     }
+
+});
+
+router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
+    const userId = req.user.id;
+    const day = parseInt(req.params.day);
+    const month = parseInt(req.params.month);
+    const year = parseInt(req.params.year);
+
+    if (!userId || typeof (userId) !== 'string') {
+        return res.status(400).json({ success: false, message: "userId is required" });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
+    }
+
+    const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
+    const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    const diary = await Diary.findOne({
+        userId: userId,
+        createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay
+        }
+    });
+
+    if (!diary) {
+            return res.status(404).json({ success: false, message: "Diary not found" });
+        }
+
+        return res.status(200).json({ success: true, data: diary });
 
 });
 
