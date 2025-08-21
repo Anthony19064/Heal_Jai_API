@@ -4,6 +4,13 @@ const Diary = require('../models/diaryModel');
 
 const verifyToken = require('../middleware/verifyToken');
 
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 //เพิ่มอารมณ์
 router.post('/addDiaryMood', verifyToken, async (req, res) => {
     const { moodValue } = req.body;
