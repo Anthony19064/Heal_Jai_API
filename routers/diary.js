@@ -189,8 +189,8 @@ router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startDate = new Date(Date.UTC(year, month - 1, 1));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+    const startOfDay = dayjs.tz(`${year}-${month}-${day}`, 'Asia/Bangkok').startOf('day').toDate();
+    const endOfDay = dayjs.tz(`${year}-${month}-${day}`, 'Asia/Bangkok').endOf('day').toDate();
 
     try {
         const DiaryHistory = await Diary.find({
