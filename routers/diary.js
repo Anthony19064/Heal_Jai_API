@@ -249,6 +249,7 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
 
     // แปลง createdAt เป็นเวลาไทย
     const createdAtThai = dayjs(diary.createdAt).tz('Asia/Bangkok').format();
+    console.log(createdAtThai);
 
     // ถ้า mood.value[].time ก็แปลงด้วย (ถ้ามี)
     if (diary.mood && diary.mood.value) {
