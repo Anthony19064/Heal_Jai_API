@@ -247,6 +247,27 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
         return res.status(404).json({ success: false, message: "Diary not found" });
     }
 
+    // แปลง createdAt เป็นเวลาไทย
+    const createdAtThai = dayjs(diary.createdAt).tz('Asia/Bangkok').format();
+
+    // ถ้า mood.value[].time ก็แปลงด้วย (ถ้ามี)
+    if (diary.mood && diary.mood.value) {
+        diary.mood.value = diary.mood.value.map(m => {
+            return {
+                ...m.toObject ? m.toObject() : m, // ถ้าเป็น mongoose doc แปลงเป็น plain object
+                time: m.time ? dayjs(m.time).tz('Asia/Bangkok').format() : null
+            };
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        data: {
+            ...diary.toObject(),
+            createdAt: createdAtThai,
+        }
+    });
+
     return res.status(200).json({ success: true, data: diary });
 
 });
