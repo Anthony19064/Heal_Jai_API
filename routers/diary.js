@@ -189,8 +189,8 @@ router.get('/DiaryHistory/:year/:month', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = dayjs.tz(`${year}-${month}-${day}`, 'Asia/Bangkok').startOf('day').toDate();
-    const endOfDay = dayjs.tz(`${year}-${month}-${day}`, 'Asia/Bangkok').endOf('day').toDate();
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
     try {
         const DiaryHistory = await Diary.find({
@@ -231,8 +231,9 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
-    const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+    const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+
 
     const diary = await Diary.findOne({
         userID: userId,
