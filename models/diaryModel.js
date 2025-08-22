@@ -56,3 +56,7 @@ const DiarySchema = new mongoose.Schema({
         }
     }
 }, { versionKey: false });
+
+const Diary = mongoose.model('Diary', DiarySchema);
+
+module.exports = Diary;
