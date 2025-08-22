@@ -235,7 +235,7 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
     const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
 
     const diary = await Diary.findOne({
-        userId: userId,
+        userID: userId,
         createdAt: {
             $gte: startOfDay,
             $lte: endOfDay

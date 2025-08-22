@@ -7,7 +7,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const DiarySchema = new mongoose.Schema({
-    userId: {
+    userID: {
         type: String,
         required: true,
         index: true,
