@@ -256,7 +256,7 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
         diary.mood.value = diary.mood.value.map(m => {
             return {
                 ...m.toObject ? m.toObject() : m, // ถ้าเป็น mongoose doc แปลงเป็น plain object
-                time: m.time ? dayjs(m.time).tz('Asia/Bangkok').format() : null
+                time: createdAtThai,
             };
         });
     }
