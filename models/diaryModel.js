@@ -16,15 +16,6 @@ const DiarySchema = new mongoose.Schema({
         type: Date,
         default: () => dayjs().tz('Asia/Bangkok').toDate()
     },
-    // เพิ่ม field สำหรับเก็บวันที่เป็น Thailand timezone
-    localDate: {
-        type: String, // format: YYYY-MM-DD
-        index: true   // เพิ่ม index เพื่อ query เร็วขึ้น
-    },
-    timezone: {
-        type: String,
-        default: 'Asia/Bangkok'
-    },
     mood: {
         value: {
             type: [
