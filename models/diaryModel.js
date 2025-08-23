@@ -14,7 +14,7 @@ const DiarySchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: () => new Date()
+        default: dayjs().tz('Asia/Bangkok').toDate()
     },
     mood: {
         value: {
@@ -22,7 +22,7 @@ const DiarySchema = new mongoose.Schema({
                 {
                     time: {
                         type: Date,
-                        default: () => new Date()
+                        default: dayjs().tz('Asia/Bangkok').toDate()
                     },
                     mood: String,
                     text: String
