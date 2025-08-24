@@ -28,11 +28,9 @@ router.post('/addDiaryMood', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    const now = dayjs().tz('Asia/Bangkok');
+    const startOfDay = now.startOf('day').toDate();
+    const endOfDay = now.endOf('day').toDate();
 
     try {
 
@@ -83,11 +81,10 @@ router.post('/addDiaryQuestion', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const now = dayjs().tz('Asia/Bangkok');
+    const startOfDay = now.startOf('day').toDate();
+    const endOfDay = now.endOf('day').toDate();
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
 
     try {
         let diary = await Diary.findOne({
@@ -139,11 +136,10 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const now = dayjs().tz('Asia/Bangkok');
+    const startOfDay = now.startOf('day').toDate();
+    const endOfDay = now.endOf('day').toDate();
 
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
 
     try {
         let diary = await Diary.findOne({
