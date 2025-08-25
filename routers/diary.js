@@ -234,7 +234,7 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
 
     const dateThai = dayjs.tz(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`, 'Asia/Bangkok');
 
-    const startOfDay = dateThai.startOf('day').toDate(); 
+    const startOfDay = dateThai.startOf('day').toDate();
     const endOfDay = dateThai.endOf('day').toDate();
 
     const diary = await Diary.findOne({
@@ -250,6 +250,54 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
     }
 
     return res.status(200).json({ success: true, data: diary });
+
+});
+
+router.get('/getTask/:day/:month/:year', verify, async (req, res) => {
+    const userId = req.user.id;
+    const day = parseInt(req.params.day);
+    const month = parseInt(req.params.month);
+    const year = parseInt(req.params.year);
+
+    if (!userId || typeof (userId) !== 'string') {
+        return res.status(400).json({ success: false, message: "userId is required" });
+    }
+    if (userId !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
+    }
+
+    const dateThai = dayjs.tz(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`, 'Asia/Bangkok');
+
+    const startOfDay = dateThai.startOf('day').toDate();
+    const endOfDay = dateThai.endOf('day').toDate();
+
+    const diary = await Diary.findOne({
+        userID: userId,
+        createdAt: {
+            $gte: startOfDay,
+            $lte: endOfDay
+        }
+    });
+
+    if (!diary) {
+        return res.status(404).json({ success: false, message: "Diary not found" });
+    }
+
+    let taskCount = 0;
+
+    if (diary.mood?.value?.length > 0) {
+        taskCount += 1;
+    }
+
+    if (diary.question?.answer && diary.question.answer.trim() !== "") {
+        taskCount += 1;
+    }
+
+    if (diary.story?.value?.length > 0) {
+        taskCount += 1;
+    }
+
+    return res.status(200).json({ success: true, data: taskCount });
 
 });
 
