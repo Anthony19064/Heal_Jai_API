@@ -254,6 +254,10 @@ router.get('/getDiary/:day/:month/:year', verifyToken, async (req, res) => {
 });
 
 router.get('/getTask/:day/:month/:year', verify, async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ success: false, message: 'Unauthorized: No user data' });
+    }
+
     const userId = req.user.id;
     const day = parseInt(req.params.day);
     const month = parseInt(req.params.month);
