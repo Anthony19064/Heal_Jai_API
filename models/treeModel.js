@@ -8,6 +8,10 @@ dayjs.extend(timezone);
 
 const TreeSchema = new mongoose.Schema({
   userID: String,
+  latestupdateAt: {
+    type: Date,
+    default: () => dayjs().tz('Asia/Bangkok').toDate()
+  },
   treeAge: {
     type: Number,
     default: 1,
