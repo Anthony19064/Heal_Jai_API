@@ -7,9 +7,11 @@ const verifyToken = require('../middleware/verifyToken');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
+const isBetween = require('dayjs/plugin/isBetween');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.extend(isBetween);
 
 
 router.post('/addAge/:day/:month/:year', verifyToken, async (req, res) => {
@@ -56,7 +58,7 @@ router.post('/addAge/:day/:month/:year', verifyToken, async (req, res) => {
         return res.status(200).json({ success: true, data: tree });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        return res.status(500).json({ error: 'Server error' });
     }
 
 });
@@ -81,7 +83,7 @@ router.get('/getAge', verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        return res.status(500).json({ error: 'Server error' });
     }
 })
 
