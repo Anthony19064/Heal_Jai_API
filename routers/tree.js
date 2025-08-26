@@ -40,7 +40,6 @@ router.post('/addAge/:day/:month/:year', verifyToken, async (req, res) => {
         if (!tree) {
             const newTree = new Tree({
                 userID: userId,
-                updateAt: dayjs().tz('Asia/Bangkok').toDate()
             });
             await newTree.save();
             return res.status(200).json({ success: true, data: newTree });
@@ -48,11 +47,11 @@ router.post('/addAge/:day/:month/:year', verifyToken, async (req, res) => {
 
         const lastUpdate = dayjs(tree.updateAt).tz('Asia/Bangkok');
         if (lastUpdate.isBetween(startOfDay, endOfDay, null, '[]')) {
-            return res.status(400).json({ success: false, message: "Already added today" });
+            return res.status(400).json({ success: false, message: "เพิ่มอายุต้นไม้ในวันนี้ไปแล้ว" });
         }
 
-
         tree.treeAge += 1;
+        tree.updateAt = dayjs().tz('Asia/Bangkok').toDate();
         await tree.save();
         return res.status(200).json({ success: true, data: tree });
     } catch (error) {
