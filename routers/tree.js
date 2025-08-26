@@ -22,10 +22,12 @@ router.post('/addAge', verifyToken, async (req, res) => {
                 userID: userId,
             });
             await newTree.save();
-            return;
+            return res.status(200).json({ success: true, data: newTree });
         }
 
         tree.treeAge += 1;
+        await tree.save();
+        return res.status(200).json({ success: true, data: tree });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
