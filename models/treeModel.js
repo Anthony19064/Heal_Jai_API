@@ -1,7 +1,17 @@
 const mongoose = require('mongoose');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const TreeSchema = new mongoose.Schema({
   userID: String,
+  updateAt: {
+    type: Date,
+    default: () => dayjs().tz('Asia/Bangkok').toDate()
+  },
   treeAge: {
     type: Number,
     default: 1,
