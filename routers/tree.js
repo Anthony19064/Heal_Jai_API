@@ -79,7 +79,7 @@ router.get('/getAge', verifyToken, async (req, res) => {
         }
         const age = tree.treeAge;
 
-        return res.status(200).json({ success: true, data: age });
+        return res.status(200).json({ success: true, data: tree });
 
     } catch (error) {
         console.error(error);
