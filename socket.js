@@ -1,6 +1,6 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const JWT_KEY = process.env.JWT_SECRET;
+const JWT_KEY = process.env.JWT_ACCESS_KEY;
 
 let listenersQueue = [];
 let talkersQueue = [];

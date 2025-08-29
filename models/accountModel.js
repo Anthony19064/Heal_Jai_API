@@ -5,7 +5,8 @@ const AccountSchema = new mongoose.Schema({
   password: String,
   mail: String,
   photoURL: String,
-  googleId: String
+  googleId: String,
+  refreshToken : String,
 }, { versionKey: false });
 
 const Account = mongoose.model('account', AccountSchema);
