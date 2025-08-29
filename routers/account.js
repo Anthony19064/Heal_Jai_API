@@ -142,7 +142,7 @@ router.post('/googleAuth', async (req, res) => {
 
 //ออกจากระบบ
 router.post('/logout', async (req, res) => {
-  const userId = req.body;
+  const {userId} = req.body;
   console.log(userId);
   if (!userId) {
     return res.status(400).json({ success: false, message: "userId is required" });
