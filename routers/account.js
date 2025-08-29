@@ -142,7 +142,7 @@ router.post('/googleAuth', async (req, res) => {
 
 //ออกจากระบบ
 router.post('/logout', async (req, res) => {
-  const {userId} = req.body;
+  const { userId } = req.body;
   console.log(userId);
   if (!userId) {
     return res.status(400).json({ success: false, message: "userId is required" });
@@ -346,8 +346,10 @@ router.put('/ResetPassword', async (req, res) => {
 });
 
 router.post('/refreshToken', async (req, res) => {
+  console.log('refresh ทำงาน');
+  const { refreshToken } = req.body;
   try {
-    const { refreshToken } = req.body;
+    
     if (!refreshToken) {
       return res.status(401).json({ success: false, message: 'No refresh token provided' });
     }
