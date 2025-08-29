@@ -55,6 +55,8 @@ router.post('/login', async (req, res) => {
         { expiresIn: '30d' } // อายุ token 30 วัน
       );
 
+      console.log(refreshToken);
+
       myAccount.refreshToken = refreshToken;
       await myAccount.save();
 
