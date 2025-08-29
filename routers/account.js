@@ -141,8 +141,11 @@ router.post('/googleAuth', async (req, res) => {
 });
 
 //ออกจากระบบ
-router.post('/logout', verifyToken, async (req, res) => {
-  const userId = req.user.id;
+router.post('/logout', async (req, res) => {
+  const userId = req.body;
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId is required" });
+  }
   await Account.updateOne({ _id: userId }, { $unset: { refreshToken: "" } });
   res.json({ success: true, message: "Logged out successfully" });
 })
