@@ -143,10 +143,13 @@ router.post('/googleAuth', async (req, res) => {
 //ออกจากระบบ
 router.post('/logout', async (req, res) => {
   const userId = req.body;
+  console.log(userId);
   if (!userId) {
     return res.status(400).json({ success: false, message: "userId is required" });
   }
-  await Account.updateOne({ _id: userId }, { $unset: { refreshToken: "" } });
+  const account = await Account.findById(userId);
+  account.refreshToken = "";
+  await account.save();
   res.json({ success: true, message: "Logged out successfully" });
 })
 
