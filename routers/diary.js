@@ -293,7 +293,7 @@ router.get('/getTask/:day/:month/:year', verifyToken, async (req, res) => {
         taskCount += 1;
     }
 
-    if (taskc.story?.value?.length > 0) {
+    if (task.story?.value?.length > 0) {
         taskCount += 1;
     }
 
