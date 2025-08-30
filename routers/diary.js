@@ -289,7 +289,7 @@ router.get('/getTask/:day/:month/:year', verifyToken, async (req, res) => {
         taskCount += 1;
     }
 
-    if (task.question?.answer && diary.question.answer.trim() !== "") {
+    if (task.question?.answer && task.question.answer.trim() !== "") {
         taskCount += 1;
     }
 
