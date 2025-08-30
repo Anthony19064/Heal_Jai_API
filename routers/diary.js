@@ -271,7 +271,7 @@ router.get('/getTask/:day/:month/:year', verifyToken, async (req, res) => {
     const startOfDay = dateThai.startOf('day').toDate();
     const endOfDay = dateThai.endOf('day').toDate();
 
-    const task = await Diary.findOne({
+    const diary = await Diary.findOne({
         userID: userId,
         createdAt: {
             $gte: startOfDay,
@@ -279,21 +279,21 @@ router.get('/getTask/:day/:month/:year', verifyToken, async (req, res) => {
         }
     });
 
-    if (!task) {
-        return res.status(404).json({ success: false, message: "Task not found" });
+    if (!diary) {
+        return res.status(404).json({ success: false, message: "Diary not found" });
     }
 
     let taskCount = 0;
 
-    if (task.mood?.value?.length > 0) {
+    if (diary.mood?.value?.length > 0) {
         taskCount += 1;
     }
 
-    if (task.question?.answer && task.question.answer.trim() !== "") {
+    if (diary.question?.answer && diary.question.answer.trim() !== "") {
         taskCount += 1;
     }
 
-    if (task.story?.value?.length > 0) {
+    if (diary.story?.value?.length > 0) {
         taskCount += 1;
     }
 
