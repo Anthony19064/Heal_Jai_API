@@ -346,7 +346,6 @@ router.put('/ResetPassword', async (req, res) => {
 });
 
 router.post('/refreshToken', async (req, res) => {
-  console.log('refresh ทำงาน');
   const { refreshToken } = req.body;
   try {
     
