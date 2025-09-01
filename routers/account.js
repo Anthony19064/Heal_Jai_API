@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
       }
       const CheckPass = await bcrypt.compare(password, myAccount.password);
       if (!CheckPass){
-        return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถุกต้อง' });
+        return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
       }
 
       const accessToken = jwt.sign(
