@@ -32,9 +32,12 @@ router.post('/login', async (req, res) => {
   try {
     if (mail && password && typeof (mail) === 'string' && typeof (password) === 'string') {
       const myAccount = await Account.findOne({ mail });
-      const CheckPass = await bcrypt.compare(password, myAccount.password);
-      if (!myAccount || !CheckPass) {
+      if (!myAccount) {
         return res.status(401).json({ success: false, message: 'ไม่พบอีเมล' });
+      }
+      const CheckPass = await bcrypt.compare(password, myAccount.password);
+      if (!CheckPass){
+        return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถุกต้อง' });
       }
 
       const accessToken = jwt.sign(
