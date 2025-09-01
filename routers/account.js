@@ -293,7 +293,7 @@ router.put('/ResetPassword', async (req, res) => {
     }
 
     const account = await Account.findOne({ mail });
-    const isSame = await bcrypt.compare(newPassword, account.password);
+    const isSame = await bcrypt.compare(newPassword, account.password); // เช็ครหัสผ่านใหม่กับรหัสเก่า
 
     if(isSame){
       return res.status(400).json({ success: false, message: 'รหัสใหม่ของคุณเหมือนกับรหัสเก่า :(' });
