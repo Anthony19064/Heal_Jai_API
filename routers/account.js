@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const JWT_KEY = process.env.JWT_SECRET;
+const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
+const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
 const verifyToken = require('../middleware/verifyToken');
 
 const nodemailer = require('nodemailer');
@@ -31,30 +32,39 @@ router.post('/login', async (req, res) => {
   try {
     if (mail && password && typeof (mail) === 'string' && typeof (password) === 'string') {
       const myAccount = await Account.findOne({ mail });
-      if (!myAccount) {
+      const CheckPass = await bcrypt.compare(password, myAccount.password);
+      if (!myAccount || !CheckPass) {
         return res.status(401).json({ success: false, message: 'ไม่พบอีเมล' });
       }
 
-      const CheckPass = await bcrypt.compare(password, myAccount.password);
-      if (!CheckPass) {
-        return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
-      }
-
-      const token = jwt.sign(
+      const accessToken = jwt.sign(
         {
           id: myAccount.id,
           mail: myAccount.mail,
           username: myAccount.username,
-          photoURL: myAccount.photoURL
         },
-        JWT_KEY,
-        { expiresIn: '7d' } // อายุ token 7 วัน
+        JWT_ACCESS,
+        { expiresIn: '15m' } // อายุ token 15 นาที
       );
+
+      const refreshToken = jwt.sign(
+        {
+          id: myAccount.id,
+        },
+        JWT_REFRESH,
+        { expiresIn: '30d' } // อายุ token 30 วัน
+      );
+
+      console.log(refreshToken);
+
+      myAccount.refreshToken = refreshToken;
+      await myAccount.save();
 
       return res.json({
         success: true,
         message: 'เข้าสู่ระบบสำเร็จ',
-        token,
+        accessToken,
+        refreshToken,
         user: {
           id: myAccount.id,
           username: myAccount.username,
@@ -88,20 +98,33 @@ router.post('/googleAuth', async (req, res) => {
         myAccount = newAccount;
       }
 
-      const token = jwt.sign(
+      const accessToken = jwt.sign(
         {
           id: myAccount.id,
           mail: myAccount.mail,
           username: myAccount.username,
-          photoURL: myAccount.photoURL
+          type: 'access'
         },
-        JWT_KEY,
-        { expiresIn: '7d' } // อายุ token 7 วัน
+        JWT_ACCESS,
+        { expiresIn: '15m' } // อายุ token 15 นาที
       );
+
+      const refreshToken = jwt.sign(
+        {
+          id: myAccount.id,
+          type: 'refresh'
+        },
+        JWT_REFRESH,
+        { expiresIn: '90d' } // อายุ token 30 วัน
+      );
+
+      myAccount.refreshToken = refreshToken;
+      await myAccount.save();
 
       return res.json({
         success: true, message: "เข้าสู่ระบบสำเร็จ",
-        token,
+        accessToken,
+        refreshToken,
         user: {
           id: myAccount.id,
           username: myAccount.username,
@@ -115,6 +138,19 @@ router.post('/googleAuth', async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+//ออกจากระบบ
+router.post('/logout', async (req, res) => {
+  const { userId } = req.body;
+  console.log(userId);
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId is required" });
+  }
+  const account = await Account.findById(userId);
+  account.refreshToken = "";
+  await account.save();
+  res.json({ success: true, message: "Logged out successfully" });
 })
 
 //ลงทะเบียน
@@ -295,7 +331,7 @@ router.put('/ResetPassword', async (req, res) => {
     const account = await Account.findOne({ mail });
     const isSame = await bcrypt.compare(newPassword, account.password); // เช็ครหัสผ่านใหม่กับรหัสเก่า
 
-    if(isSame){
+    if (isSame) {
       return res.status(400).json({ success: false, message: 'รหัสใหม่ของคุณเหมือนกับรหัสเก่า :(' });
     }
 
@@ -306,6 +342,43 @@ router.put('/ResetPassword', async (req, res) => {
 
   } catch (e) {
     return res.status(500).json({ success: false, message: e });
+  }
+});
+
+router.post('/refreshToken', async (req, res) => {
+  const { refreshToken } = req.body;
+  try {
+    
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'No refresh token provided' });
+    }
+
+    const user = await Account.findOne({ refreshToken });
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Session หมดอายุกรุณาล็อคอินใหม่' });
+    }
+
+    jwt.verify(refreshToken, JWT_REFRESH, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ success: false, message: 'Session หมดอายุกรุณาล็อคอินใหม่' });
+      }
+
+      const accessToken = jwt.sign(
+        {
+          id: decoded.id,
+          mail: decoded.mail,
+          username: decoded.username,
+        },
+        JWT_ACCESS,
+        { expiresIn: '15m' } // อายุ token 15 นาที
+      );
+
+      return res.json({ success: true, accessToken });
+
+    });
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

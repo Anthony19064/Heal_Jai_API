@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const JWT_KEY = process.env.JWT_SECRET;
+const JWT_KEY = process.env.JWT_ACCESS_KEY;
 
 
 
@@ -15,7 +15,11 @@ function verifyToken(req, res, next) {
 
   jwt.verify(token, JWT_KEY, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ success: false, message: 'Invalid token' });
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ success: false, message: 'Token expired' });
+      } else {
+        return res.status(403).json({ success: false, message: 'Invalid token' });
+      }
     }
 
     req.user = decoded; // เพิ่มข้อมูล user ลงใน req
