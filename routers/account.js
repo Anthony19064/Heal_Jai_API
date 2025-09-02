@@ -93,10 +93,10 @@ router.post('/googleAuth', async (req, res) => {
       if (typeof (displayName) !== 'string' || typeof (email) !== 'string' || typeof (uid) !== 'string' || typeof (photoURL) !== 'string') {
         return res.status(400).json({ success: false, message: 'Data type is wrong' });
       }
-      let myAccount = await Account.findOne({ mail: email });
+      let myAccount = await Account.findOne({ gmali: email });
 
       if (!myAccount) {
-        const newAccount = new Account({ username: displayName, mail: email, photoURL, googleId: uid })
+        const newAccount = new Account({ username: displayName, gmali: email, photoURL, googleId: uid })
         await newAccount.save();
         myAccount = newAccount;
       }
@@ -104,7 +104,7 @@ router.post('/googleAuth', async (req, res) => {
       const accessToken = jwt.sign(
         {
           id: myAccount.id,
-          mail: myAccount.mail,
+          mail: myAccount.gmali,
           username: myAccount.username,
           type: 'access'
         },
@@ -132,7 +132,7 @@ router.post('/googleAuth', async (req, res) => {
         user: {
           id: myAccount.id,
           username: myAccount.username,
-          mail: myAccount.mail,
+          mail: myAccount.gmali,
           photoURL: myAccount.photoURL
         },
       })

@@ -6,6 +6,7 @@ const AccountSchema = new mongoose.Schema({
   mail: String,
   photoURL: String,
   googleId: String,
+  gmali: String,
   refreshToken : String,
 }, { versionKey: false });
 
