@@ -33,9 +33,7 @@ router.post('/addAge/:day/:month/:year', verifyToken, async (req, res) => {
         const startOfDay = dateThai.startOf('day').toDate();
         const endOfDay = dateThai.endOf('day').toDate();
 
-        const tree = await Tree.findOne({
-            userID: userId
-        });
+        const tree = await Tree.findOne({userID: userId});
         if (!tree) {
             const newTree = new Tree({
                 userID: userId,

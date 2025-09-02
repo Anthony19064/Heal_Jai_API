@@ -93,7 +93,7 @@ router.post('/googleAuth', async (req, res) => {
       if (typeof (displayName) !== 'string' || typeof (email) !== 'string' || typeof (uid) !== 'string' || typeof (photoURL) !== 'string') {
         return res.status(400).json({ success: false, message: 'Data type is wrong' });
       }
-      let myAccount = await Account.findOne({ googleId: uid });
+      let myAccount = await Account.findOne({ mail: email });
 
       if (!myAccount) {
         const newAccount = new Account({ username: displayName, mail: email, photoURL, googleId: uid })
@@ -122,6 +122,7 @@ router.post('/googleAuth', async (req, res) => {
       );
 
       myAccount.refreshToken = refreshToken;
+      myAccount.googleId = uid;
       await myAccount.save();
 
       return res.json({
