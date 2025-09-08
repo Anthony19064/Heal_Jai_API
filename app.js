@@ -19,6 +19,7 @@ const io = new Server(server, {
 
 require('./socket')(io);
 
+const authenRouters = require('./routers/authen');
 const accountRouters = require('./routers/account');
 const postRouters = require('./routers/post');
 const moodRouters = require('./routers/mood');
@@ -27,10 +28,12 @@ const commentRouters = require('./routers/comment');
 const likeRouters = require('./routers/Like');
 const diaryRouters = require('./routers/diary');
 const treeRouters = require('./routers/tree');
+const tokenRouters = require('./routers/token');
 
 app.use(express.json());
 
 // เรียกใช้ route
+app.use('/api', authenRouters);
 app.use('/api', accountRouters);
 app.use('/api', postRouters);
 app.use('/api', moodRouters);
@@ -39,6 +42,7 @@ app.use('/api', commentRouters);
 app.use('/api', likeRouters);
 app.use('/api', diaryRouters);
 app.use('/api', treeRouters);
+app.use('/api', tokenRouters);
 
 app.get('/', (req, res) => {
   res.send('Welcome to HealJai API :)');

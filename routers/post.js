@@ -5,17 +5,17 @@ const Post = require('../models/postModel');
 const verifyToken = require('../middleware/verifyToken');
 
 
-router.get('/getMypost/:ownerId', verifyToken, async (req, res) => {
-  const { ownerId } = req.params;
-  if (!ownerId || typeof (ownerId) !== 'string') {
-    return res.status(400).json({ success: false, message: 'ownerId is require' });
+router.get('/getMypost/:userId', verifyToken, async (req, res) => {
+  const { userId } = req.params;
+  if (!userId || typeof (userId) !== 'string') {
+    return res.status(400).json({ success: false, message: 'userId is require' });
   }
-  if (ownerId !== req.user.id) {
+  if (userId !== req.user.id) {
     return res.status(403).json({ success: false, message: 'Forbidden access' });
   }
   try {
 
-    const Mypost = await Post.find({ ownerPost: ownerId }).sort({ createdAt: -1 });
+    const Mypost = await Post.find({ userID: userId }).sort({ createdAt: -1 });
     return res.json({ success: true, data: Mypost })
 
   } catch (err) {
@@ -44,9 +44,9 @@ router.get('/posts', verifyToken, async (req, res) => {
 });
 
 router.post('/addPost', verifyToken, async (req, res) => {
-  const { ownerId, infoPost, imgUrl } = req.body;
+  const { userId, infoPost, imgUrl } = req.body;
 
-  if (!ownerId || typeof (ownerId) !== 'string' || typeof infoPost !== 'string' || !infoPost.trim()) {
+  if (!userId || typeof (userId) !== 'string' || typeof infoPost !== 'string' || !infoPost.trim()) {
     return res.status(400).json({ success: false, message: "กรุณาใส่ข้อความด้วยค้าบ" });
   }
   try {
@@ -56,7 +56,7 @@ router.post('/addPost', verifyToken, async (req, res) => {
         return res.status(400).json({ success: false, message: "type imgURL is wrong" });
       }
     }
-    const newPost = new Post({ ownerPost: ownerId, infoPost: infoPost.trim(), img: imgUrl });
+    const newPost = new Post({ userID: userId, infoPost: infoPost.trim(), img: imgUrl });
     await newPost.save();
     return res.json({ success: true, message: "สร้างโพสเรียบร้อยค้าบ", data: newPost });
 
