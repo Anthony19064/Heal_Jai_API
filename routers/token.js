@@ -8,15 +8,19 @@ const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
 
 
 router.post('/refreshToken', async (req, res) => {
-  const { refreshToken } = req.body;
+  const { refreshToken, userID } = req.body;
   try {
-    
-    if (!refreshToken) {
+
+    if (!refreshToken || !userID) {
       return res.status(401).json({ success: false, message: 'No refresh token provided' });
     }
 
-    const user = await Account.findOne({ refreshToken });
+    const user = await Account.findById(userID);
     if (!user) {
+      return res.status(401).json({ success: false, message: 'ไม่พบบัญชี' });
+    }
+    const CheckToken = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!CheckToken) {
       return res.status(401).json({ success: false, message: 'Session หมดอายุกรุณาล็อคอินใหม่' });
     }
 

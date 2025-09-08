@@ -35,7 +35,7 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ success: false, message: 'ไม่พบอีเมล' });
       }
       const CheckPass = await bcrypt.compare(password, myAccount.password);
-      if (!CheckPass){
+      if (!CheckPass) {
         return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
       }
 
@@ -56,8 +56,8 @@ router.post('/login', async (req, res) => {
         JWT_REFRESH,
         { expiresIn: '30d' } // อายุ token 30 วัน
       );
-
-      myAccount.refreshToken = refreshToken;
+      const hashedToken = await bcrypt.hash(refreshToken, 10);
+      myAccount.refreshToken = hashedToken;
       await myAccount.save();
 
       return res.json({
@@ -118,7 +118,8 @@ router.post('/googleAuth', async (req, res) => {
         { expiresIn: '90d' } // อายุ token 30 วัน
       );
 
-      myAccount.refreshToken = refreshToken;
+      const hashedToken = await bcrypt.hash(refreshToken, 10);
+      myAccount.refreshToken = hashedToken;
       myAccount.googleId = uid;
       await myAccount.save();
 
@@ -148,7 +149,7 @@ router.post('/logout', async (req, res) => {
     return res.status(400).json({ success: false, message: "userId is required" });
   }
   const account = await Account.findById(userId);
-  if(!account){
+  if (!account) {
     return res.status(400).json({ success: false, message: "account Not Found" });
   }
   account.refreshToken = "";
