@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Account = require('../models/accountModel');
-
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
