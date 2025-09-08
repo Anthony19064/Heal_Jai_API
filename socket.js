@@ -69,7 +69,11 @@ module.exports = (io) => {
 
     jwt.verify(token, JWT_KEY, (err, decoded) => {
       if (err) {
-        socket.emit('unauthorized', 'Invalid token');
+        if (err.name === 'TokenExpiredError') {
+          socket.emit('unauthorized', 'Token expired');
+        } else {
+          socket.emit('unauthorized', 'Invalid token');
+        }
         socket.disconnect();
         return;
       }
@@ -98,7 +102,11 @@ module.exports = (io) => {
       });
 
       socket.on('sendMessage', ({ roomId, message, time, role }) => {
-        socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
+        if (socket.data.roomId === roomId) {
+          socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
+        } else {
+          socket.emit('unauthorized', 'Invalid room');
+        }
       });
 
       socket.on('endChat', () => {
