@@ -5,16 +5,16 @@ const Account = require('../models/accountModel');
 const verifyToken = require('../middleware/verifyToken');
 
 //ดึงบัญชีเดียว
-router.get('/Account/:postowner', verifyToken, async (req, res) => {
-  const { postowner } = req.params;
+router.get('/Account/:userID', verifyToken, async (req, res) => {
+  const { userID } = req.params;
 
-  if (!postowner || typeof (postowner) !== 'string') {
-    return res.status(400).json({ error: 'postowner is required' });
+  if (!userID || typeof (userID) !== 'string') {
+    return res.status(400).json({ error: 'userID is required' });
   }
 
   try {
 
-    const myAccount = await Account.findById(postowner);
+    const myAccount = await Account.findById(userID);
     if (!myAccount) {
       return res.status(404).json({ error: 'Account not found' });
     }
