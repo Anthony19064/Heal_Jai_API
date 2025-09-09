@@ -5,7 +5,7 @@ const Post = require('../models/postModel');
 const verifyToken = require('../middleware/verifyToken');
 
 
-router.get('/getMypost/:userId', verifyToken, async (req, res) => {
+router.get('/myposts/:userId', verifyToken, async (req, res) => {
   const { userId } = req.params;
   if (!userId || typeof (userId) !== 'string') {
     return res.status(400).json({ success: false, message: 'userId is require' });
@@ -43,7 +43,7 @@ router.get('/posts', verifyToken, async (req, res) => {
 
 });
 
-router.post('/addPost', verifyToken, async (req, res) => {
+router.post('/posts', verifyToken, async (req, res) => {
   const { userId, infoPost, imgUrl } = req.body;
 
   if (!userId || typeof (userId) !== 'string' || typeof infoPost !== 'string' || !infoPost.trim()) {
