@@ -4,7 +4,7 @@ const Like = require('../models/LikeModel');
 
 const verifyToken = require('../middleware/verifyToken');
 
-router.post('/getLike', verifyToken, async (req, res) => {
+router.post('/Like', verifyToken, async (req, res) => {
     const { postID, userID } = req.body;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
@@ -43,7 +43,7 @@ router.get('/countLike/:postID', async (req, res) => {
 
 });
 
-router.post('/addLike', verifyToken, async (req, res) => {
+router.post('/Like', verifyToken, async (req, res) => {
     const { postID, userID } = req.body;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
