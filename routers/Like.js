@@ -10,9 +10,6 @@ router.get('/Like/:postID/:userID', verifyToken, async (req, res) => {
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
     }
-    if (userID !== req.user.id) {
-        return res.status(403).json({ success: false, message: 'Forbidden access' });
-    }
 
     try {
         const likeObj = await Like.findOne({ postId: postID, userId: userID });
@@ -47,9 +44,6 @@ router.post('/Like', verifyToken, async (req, res) => {
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
-    }
-    if (userID !== req.user.id) {
-        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
