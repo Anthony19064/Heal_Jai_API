@@ -4,8 +4,8 @@ const Like = require('../models/LikeModel');
 
 const verifyToken = require('../middleware/verifyToken');
 
-router.post('/Like', verifyToken, async (req, res) => {
-    const { postID, userID } = req.body;
+router.get('/Like/:postID/:userID', verifyToken, async (req, res) => {
+    const { postID, userID } = req.params;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
@@ -25,7 +25,6 @@ router.post('/Like', verifyToken, async (req, res) => {
         console.log(err);
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-
 });
 
 router.get('/countLike/:postID', async (req, res) => {
