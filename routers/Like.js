@@ -27,7 +27,7 @@ router.get('/Like/:postID/:userID', verifyToken, async (req, res) => {
     }
 });
 
-router.get('/countLike/:postID', async (req, res) => {
+router.get('/countLike/:postID', verifyToken, async (req, res) => {
     const { postID } = req.params;
     if (!postID || typeof (postID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID is require' });
