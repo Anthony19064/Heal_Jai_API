@@ -53,7 +53,7 @@ router.post('/Comment', verifyToken, async (req, res) => {
             infoComment: commentInfo
         });
         await newComment.save();
-        return res.json({ success: true, message: "บันทึกคอมเมนต์สำเร็จ" });
+        return res.json({ success: true, message: "บันทึกคอมเมนต์สำเร็จ", data: newComment });
 
     } catch (err) {
         console.log(err)
