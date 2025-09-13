@@ -26,7 +26,7 @@ router.get('/Comment/:postID', async (req, res) => {
         return res.status(400).json({ error: 'postID is required' });
     }
     try {
-        const myComment = await Comment.find({ postId: postID }).sort({ createdAt: -1 });
+        const myComment = await Comment.find({ postId: postID });
         if (myComment) {
             return res.json({ success: true, data: myComment })
         }
