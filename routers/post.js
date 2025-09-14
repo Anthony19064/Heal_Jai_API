@@ -94,7 +94,7 @@ router.delete('/posts/:postId', verifyToken, async (req, res) => {
 router.put('/posts/:postId', verifyToken, async (req, res) => {
   const postId = req.params.postId;
   const userId = req.user.id;
-  const newData = { ...req.body };
+  const { newData } = req.body;
   delete newData._id;
 
   console.log('Updating post:', postId);
