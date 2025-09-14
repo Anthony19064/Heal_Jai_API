@@ -66,4 +66,29 @@ router.post('/posts', verifyToken, async (req, res) => {
   }
 });
 
+router.delete('/posts/:postId', verifyToken, async (req, res) => {
+  const postId = req.params.postId;
+  const userId = req.user.id;
+
+  try {
+    if (!postId || !userId || typeof (userId) !== 'string') {
+      return res.status(400).json({ success: false, message: "PostId and UserId are required" });
+    }
+
+    const post = await Post.findById(postId);
+    if (post) {
+      if (post.userID.toString() !== userId) {
+        return res.status(403).json({ success: false, message: "Forbidden access" });
+      }
+
+      await post.deleteOne();
+      return res.status(200).json({ success: true, message: "Delete Post success" });
+    }
+    return res.status(404).json({ success: false, message: "Post not found." });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 module.exports = router;
