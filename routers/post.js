@@ -97,8 +97,6 @@ router.put('/posts/:postId', verifyToken, async (req, res) => {
   const { newData } = req.body;
   delete newData._id;
 
-  console.log('Updating post:', postId);
-  console.log('New data:', newData); // เพิ่มบรรทัดนี้
 
   try {
     if (!postId || !userId || typeof (userId) !== 'string') {
@@ -112,9 +110,7 @@ router.put('/posts/:postId', verifyToken, async (req, res) => {
     if (post.userID.toString() !== userId) {
       return res.status(403).json({ success: false, message: "Forbidden access" });
     }
-    console.log('Before update:', post);
     const updatedPost = await Post.findByIdAndUpdate(postId, newData, { new: true });
-    console.log('After update:', updatedPost);
     res.status(200).json({ success: true, data: updatedPost });
   } catch (err) {
     console.log(err)
