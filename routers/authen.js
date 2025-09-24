@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
   const { mail, password } = req.body;
 
   try {
-    if (!mail || !password || typeof (mail) === 'string' || typeof (password) === 'string') {
+    if (!mail || !password || typeof (mail) !== 'string' || typeof (password) !== 'string') {
       return res.status(400).json({
         success: false,
         message: 'กรุณากรอกอีเมลและรหัสผ่าน'
