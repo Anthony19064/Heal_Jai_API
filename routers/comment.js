@@ -20,13 +20,13 @@ router.get('/countComment/:postID', async (req, res) => {
     }
 });
 
-router.get('/getComment/:postID', async (req, res) => {
+router.get('/Comment/:postID', async (req, res) => {
     const { postID } = req.params;
     if (!postID || typeof (postID) !== 'string') {
         return res.status(400).json({ error: 'postID is required' });
     }
     try {
-        const myComment = await Comment.find({ postId: postID }).sort({ createdAt: -1 });
+        const myComment = await Comment.find({ postId: postID });
         if (myComment) {
             return res.json({ success: true, data: myComment })
         }
@@ -38,7 +38,7 @@ router.get('/getComment/:postID', async (req, res) => {
 });
 
 
-router.post('/addComment', verifyToken, async (req, res) => {
+router.post('/Comment', verifyToken, async (req, res) => {
     const { postID, userId, commentInfo } = req.body;
     if (!postID || !userId || !commentInfo || typeof (postID) !== 'string' || typeof (userId) !== 'string' || typeof (commentInfo) !== 'string') {
         return res.status(400).json({ error: 'postID, userId, commentInfo is required' });
@@ -53,7 +53,7 @@ router.post('/addComment', verifyToken, async (req, res) => {
             infoComment: commentInfo
         });
         await newComment.save();
-        return res.json({ success: true, message: "บันทึกคอมเมนต์สำเร็จ" });
+        return res.json({ success: true, message: "บันทึกคอมเมนต์สำเร็จ", data: newComment });
 
     } catch (err) {
         console.log(err)

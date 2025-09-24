@@ -4,14 +4,11 @@ const Like = require('../models/LikeModel');
 
 const verifyToken = require('../middleware/verifyToken');
 
-router.post('/getLike', verifyToken, async (req, res) => {
-    const { postID, userID } = req.body;
+router.get('/Like/:postID/:userID', verifyToken, async (req, res) => {
+    const { postID, userID } = req.params;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
-    }
-    if (userID !== req.user.id) {
-        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
@@ -25,10 +22,9 @@ router.post('/getLike', verifyToken, async (req, res) => {
         console.log(err);
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
-
 });
 
-router.get('/countLike/:postID', async (req, res) => {
+router.get('/countLike/:postID', verifyToken, async (req, res) => {
     const { postID } = req.params;
     if (!postID || typeof (postID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID is require' });
@@ -43,14 +39,11 @@ router.get('/countLike/:postID', async (req, res) => {
 
 });
 
-router.post('/addLike', verifyToken, async (req, res) => {
+router.post('/Like', verifyToken, async (req, res) => {
     const { postID, userID } = req.body;
 
     if (!postID || !userID || typeof (postID) !== 'string' || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'postID and userID are require' });
-    }
-    if (userID !== req.user.id) {
-        return res.status(403).json({ success: false, message: 'Forbidden access' });
     }
 
     try {
