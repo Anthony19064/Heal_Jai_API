@@ -5,29 +5,38 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 
 
 router.post('/refreshToken', async (req, res) => {
-  const { refreshToken, userID } = req.body;
+  const { refreshToken } = req.body;
   try {
 
-    if (!refreshToken || !userID) {
+    if (!refreshToken) {
       return res.status(401).json({ success: false, message: 'No refresh token provided' });
     }
 
-    const user = await Account.findById(userID);
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'ไม่พบบัญชี' });
-    }
-    const CheckToken = await bcrypt.compare(refreshToken, user.refreshToken);
-    if (!CheckToken) {
-      return res.status(401).json({ success: false, message: 'Session หมดอายุกรุณาล็อคอินใหม่' });
-    }
 
-    jwt.verify(refreshToken, JWT_REFRESH, (err, decoded) => {
+    jwt.verify(refreshToken, JWT_REFRESH, async (err, decoded) => {
       if (err) {
-        return res.status(401).json({ success: false, message: 'Session หมดอายุกรุณาล็อคอินใหม่' });
+        return res.status(401).json({ success: false, message: 'Refresh token expired' });
+      }
+
+      const user = await Account.findById(decoded.id);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'ไม่พบบัญชี' });
+      }
+
+      if (!user.refreshToken) {
+        return res.status(401).json({
+          success: false,
+          message: 'Session invalid'
+        });
+      }
+
+      const CheckToken = await bcrypt.compare(refreshToken, user.refreshToken);
+      if (!CheckToken) {
+        return res.status(401).json({ success: false, message: 'Session invalid' });
       }
 
       const accessToken = jwt.sign(

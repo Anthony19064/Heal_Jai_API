@@ -29,51 +29,58 @@ router.post('/login', async (req, res) => {
   const { mail, password } = req.body;
 
   try {
-    if (mail && password && typeof (mail) === 'string' && typeof (password) === 'string') {
-      const myAccount = await Account.findOne({ mail });
-      if (!myAccount) {
-        return res.status(401).json({ success: false, message: 'ไม่พบอีเมล' });
-      }
-      const CheckPass = await bcrypt.compare(password, myAccount.password);
-      if (!CheckPass) {
-        return res.status(401).json({ success: false, message: 'รหัสผ่านไม่ถูกต้อง' });
-      }
-
-      const accessToken = jwt.sign(
-        {
-          id: myAccount.id,
-          mail: myAccount.mail,
-          username: myAccount.username,
-        },
-        JWT_ACCESS,
-        { expiresIn: '15m' } // อายุ token 15 นาที
-      );
-
-      const refreshToken = jwt.sign(
-        {
-          id: myAccount.id,
-        },
-        JWT_REFRESH,
-        { expiresIn: '30d' } // อายุ token 30 วัน
-      );
-      const hashedToken = await bcrypt.hash(refreshToken, 10);
-      myAccount.refreshToken = hashedToken;
-      await myAccount.save();
-
-      return res.json({
-        success: true,
-        message: 'เข้าสู่ระบบสำเร็จ',
-        accessToken,
-        refreshToken,
-        user: {
-          id: myAccount.id,
-          username: myAccount.username,
-          mail: myAccount.mail,
-          photoURL: myAccount.photoURL
-        },
+    if (!mail || !password || typeof (mail) === 'string' || typeof (password) === 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณากรอกอีเมลและรหัสผ่าน'
       });
     }
-    return res.status(400).json({ success: false, message: 'กรอกข้อมูลให้ครบด้วยค้าบ' });
+
+    const myAccount = await Account.findOne({ mail: mail });
+    if (!myAccount) {
+      return res.status(401).json({ success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+    }
+
+    const CheckPass = await bcrypt.compare(password, myAccount.password);
+    if (!CheckPass) {
+      return res.status(401).json({ success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+    }
+
+    const tokenPayload = {
+      id: myAccount.id,
+      mail: myAccount.mail,
+      username: myAccount.username,
+    };
+
+    const accessToken = jwt.sign(
+      tokenPayload,
+      JWT_ACCESS,
+      { expiresIn: '15m' } // อายุ token 15 นาที
+    );
+
+    const refreshToken = jwt.sign(
+      tokenPayload,
+      JWT_REFRESH,
+      { expiresIn: '7d' } // อายุ token 7 วัน
+    );
+
+    const hashedToken = await bcrypt.hash(refreshToken, 10);
+    await Account.findByIdAndUpdate(myAccount._id.toString(), {
+      refreshToken: hashedToken,
+    });
+
+    return res.json({
+      success: true,
+      message: 'เข้าสู่ระบบสำเร็จ',
+      accessToken,
+      refreshToken,
+      user: {
+        id: myAccount.id,
+        username: myAccount.username,
+        mail: myAccount.mail,
+        photoURL: myAccount.photoURL
+      },
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -98,30 +105,29 @@ router.post('/googleAuth', async (req, res) => {
         myAccount = newAccount;
       }
 
+      const tokenPayload = {
+        id: myAccount.id,
+        mail: myAccount.mail,
+        username: myAccount.username,
+      };
+
       const accessToken = jwt.sign(
-        {
-          id: myAccount.id,
-          mail: myAccount.gmali,
-          username: myAccount.username,
-          type: 'access'
-        },
+        tokenPayload,
         JWT_ACCESS,
         { expiresIn: '15m' } // อายุ token 15 นาที
       );
 
       const refreshToken = jwt.sign(
-        {
-          id: myAccount.id,
-          type: 'refresh'
-        },
+        tokenPayload,
         JWT_REFRESH,
-        { expiresIn: '90d' } // อายุ token 30 วัน
+        { expiresIn: '7d' } // อายุ token 7 วัน
       );
 
       const hashedToken = await bcrypt.hash(refreshToken, 10);
-      myAccount.refreshToken = hashedToken;
-      myAccount.googleId = uid;
-      await myAccount.save();
+      await Account.findByIdAndUpdate(myAccount._id.toString(), {
+        refreshToken: hashedToken,
+        googleId: uid
+      });
 
       return res.json({
         success: true, message: "เข้าสู่ระบบสำเร็จ",
