@@ -150,7 +150,7 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
         if (diary) {
             if (!diary.story) diary.story = { value: [] };
             if (!diary.story.value) diary.story.value = [];
-            diary.story.value.push({info: storyValue});
+            diary.story.value.push(...storyValue);
             await diary.save();
 
             return res.json({ success: true, message: "บันทึกเรื่องราวสำเร็จ" });
@@ -159,7 +159,7 @@ router.post('/addDiaryStory', verifyToken, async (req, res) => {
         const newDiary = new Diary({
             userID: userId,
             story: {
-                value: [{info: storyValue}]
+                value: storyValue
             },
         });
         await newDiary.save();
