@@ -39,10 +39,22 @@ const DiarySchema = new mongoose.Schema({
             type: String,
             default: ""
         },
+        time: {
+            type: Date,
+            default: () => dayjs().tz('Asia/Bangkok').toDate()
+        },
     },
     story: {
         value: {
-            type: [String],
+            type: [
+                {
+                    time: {
+                        type: Date,
+                        default: () => dayjs().tz('Asia/Bangkok').toDate()
+                    },
+                    info: String
+                }
+            ],
             default: []
         }
     }
