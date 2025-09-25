@@ -6,6 +6,8 @@ const verifyToken = require('../middleware/verifyToken');
 
 
 router.get('/myposts/:userId', verifyToken, async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const skip = parseInt(req.query.skip) || 0;
   const { userId } = req.params;
   if (!userId || typeof (userId) !== 'string') {
     return res.status(400).json({ success: false, message: 'userId is require' });
@@ -13,9 +15,12 @@ router.get('/myposts/:userId', verifyToken, async (req, res) => {
   if (userId !== req.user.id) {
     return res.status(403).json({ success: false, message: 'Forbidden access' });
   }
-  try {
 
-    const Mypost = await Post.find({ userID: userId }).sort({ createdAt: -1 });
+  try {
+    const Mypost = await Post.find({ userID: userId })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);;
     return res.json({ success: true, data: Mypost })
 
   } catch (err) {
