@@ -53,7 +53,7 @@ router.post('/refreshToken', async (req, res) => {
         const accessToken = jwt.sign(
           tokenPayload,
           JWT_ACCESS,
-          { expiresIn: '15m' } // อายุ token 15 นาที
+          { expiresIn: '5m' } // อายุ token 15 นาที
         );
 
         return res.json({ success: true, accessToken });

@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
     const accessToken = jwt.sign(
       tokenPayload,
       JWT_ACCESS,
-      { expiresIn: '15m' } // อายุ token 15 นาที
+      { expiresIn: '5m' } // อายุ token 15 นาที
     );
 
     const refreshToken = jwt.sign(
@@ -122,7 +122,7 @@ router.post('/googleAuth', async (req, res) => {
       const accessToken = jwt.sign(
         tokenPayload,
         JWT_ACCESS,
-        { expiresIn: '15m' } // อายุ token 15 นาที
+        { expiresIn: '5m' } // อายุ token 15 นาที
       );
 
       const refreshToken = jwt.sign(
