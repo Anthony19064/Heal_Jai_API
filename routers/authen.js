@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
     }
 
-    myAccount.tokenVersion = (user.tokenVersion || 0) + 1;
+    myAccount.tokenVersion = (myAccount.tokenVersion || 0) + 1;
     await myAccount.save();
 
     const tokenPayload = {
@@ -109,7 +109,7 @@ router.post('/googleAuth', async (req, res) => {
         myAccount = newAccount;
       }
 
-      myAccount.tokenVersion = (user.tokenVersion || 0) + 1;
+      myAccount.tokenVersion = (myAccount.tokenVersion || 0) + 1;
       await myAccount.save();
 
       const tokenPayload = {
