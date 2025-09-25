@@ -46,10 +46,14 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
     }
 
+    myAccount.tokenVersion = (user.tokenVersion || 0) + 1;
+    await myAccount.save();
+
     const tokenPayload = {
       id: myAccount.id,
       mail: myAccount.mail,
       username: myAccount.username,
+      tokenVersion: myAccount.tokenVersion
     };
 
     const accessToken = jwt.sign(
@@ -105,10 +109,14 @@ router.post('/googleAuth', async (req, res) => {
         myAccount = newAccount;
       }
 
+      myAccount.tokenVersion = (user.tokenVersion || 0) + 1;
+      await myAccount.save();
+
       const tokenPayload = {
         id: myAccount.id,
         mail: myAccount.mail,
         username: myAccount.username,
+        tokenVersion: myAccount.tokenVersion
       };
 
       const accessToken = jwt.sign(
@@ -161,7 +169,7 @@ router.post('/logout', async (req, res) => {
   account.refreshToken = "";
   await account.save();
   res.json({ success: true, message: "Logged out successfully" });
-})
+});
 
 //ลงทะเบียน
 router.post('/regis', async (req, res) => {

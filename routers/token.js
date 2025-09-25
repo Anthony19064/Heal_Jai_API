@@ -33,18 +33,25 @@ router.post('/refreshToken', async (req, res) => {
           });
         }
 
+        if (decoded.tokenVersion !== user.tokenVersion) {
+          return res.status(401).json({ success: false, message: 'Session invalid' });
+        }
+
         const CheckToken = await bcrypt.compare(refreshToken, user.refreshToken);
         if (!CheckToken) {
           await Account.findByIdAndUpdate(decoded.id, { refreshToken: null });
           return res.status(401).json({ success: false, message: 'Session invalid' });
         }
 
+        const tokenPayload = {
+          id: user.id,
+          mail: user.mail,
+          username: user.username,
+          tokenVersion: user.tokenVersion
+        };
+
         const accessToken = jwt.sign(
-          {
-            id: decoded.id,
-            mail: decoded.mail,
-            username: decoded.username,
-          },
+          tokenPayload,
           JWT_ACCESS,
           { expiresIn: '15m' } // อายุ token 15 นาที
         );

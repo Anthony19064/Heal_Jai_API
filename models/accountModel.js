@@ -8,6 +8,7 @@ const AccountSchema = new mongoose.Schema({
   googleId: String,
   gmali: String,
   refreshToken : String,
+  tokenVersion: { type: Number, default: 0 }
 }, { versionKey: false });
 
 const Account = mongoose.model('account', AccountSchema);
