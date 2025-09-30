@@ -105,7 +105,7 @@ router.post('/quoteBookmark', verifyToken, async (req, res) => {
 
 router.get('/quoteBookmarkLst/:userID', verifyToken, async (req, res) => {
     const { userID } = req.params;
-    if (!userID || typeof (userID) !== 'string' || !quoteID || typeof (quoteID) !== 'string') {
+    if (!userID || typeof (userID) !== 'string') {
         return res.status(400).json({ success: false, message: 'userID & quoteID is require' });
     }
     if (userID !== req.user.id) {
