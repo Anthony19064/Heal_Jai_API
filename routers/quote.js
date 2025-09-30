@@ -3,6 +3,7 @@ const router = express.Router();
 const Quote = require('../models/quoteModel');
 const QuoteLike = require('../models/quoteLikeModel');
 const QuoteBookmark = require('../models/quoteBookmarkModel');
+const mongoose = require('mongoose');
 const { Types } = mongoose;
 
 const verifyToken = require('../middleware/verifyToken');
