@@ -13,7 +13,8 @@ router.get('/MinigameScore/:userID', verifyToken, async (req, res) => {
     try {
         const myMinigame = await Minigame.findOne({ userId: userID });
         if (myMinigame) {
-            return res.json({ success: true, data: myMinigame });
+            const rank = await Minigame.countDocuments({ score: { $gt: myMinigame.score } }) + 1;
+            return res.json({ success: true, data: myMinigame, rank: rank  });
         }
 
         const newMinigame = new Minigame({ userId: userID, score: 0 });
