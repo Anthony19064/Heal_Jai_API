@@ -122,7 +122,7 @@ router.get('/quoteBookmarkLst/:userID', verifyToken, async (req, res) => {
             return res.json({ success: true, data: [] });
         }
         // ดึง quoteId แล้วแปลงเป็น ObjectId
-        const quoteIds = MyquoteBookmark.map(b => Types.ObjectId(b.quoteId));
+        const quoteIds = MyquoteBookmark.map(b => new Types.ObjectId(b.quoteId));
 
         // query quote collection
         const quotes = await Quote.find({ _id: { $in: quoteIds } });
