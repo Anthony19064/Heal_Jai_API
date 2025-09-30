@@ -21,6 +21,25 @@ router.get('/quote/:type', verifyToken, async (req, res) => {
 });
 
 
+router.get('/quoteLikes/:userID/:quoteID', verifyToken, async (req, res) => {
+    const { userID, quoteID } = req.params;
+    if (!userID || typeof (userID) !== 'string' || !quoteID || typeof (quoteID) !== 'string') {
+        return res.status(400).json({ success: false, message: 'userID & quoteID is require' });
+    }
+    try {
+        const quotelikeObj = await QuoteLike.findOne({ userId: userID, quoteId: quoteID });
+        if (quotelikeObj) {
+            return res.json({ success: true, data: quotelikeObj });
+        }
+        return res.json({ success: false, message: 'not found data' });
+
+    } catch (error) {
+        console.err(error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+
+});
+
 router.post('/quoteLikes', verifyToken, async (req, res) => {
     const { userID, quoteID } = req.body;
     if (!userID || typeof (userID) !== 'string' || !quoteID || typeof (quoteID) !== 'string') {
@@ -44,6 +63,24 @@ router.post('/quoteLikes', verifyToken, async (req, res) => {
 
 });
 
+router.get('/quoteBookmark/:userID/:quoteID', verifyToken, async (req, res) => {
+    const { userID, quoteID } = req.params;
+    if (!userID || typeof (userID) !== 'string' || !quoteID || typeof (quoteID) !== 'string') {
+        return res.status(400).json({ success: false, message: 'userID & quoteID is require' });
+    }
+    try {
+        const quoteBookmarkObj = await QuoteBookmark.findOne({ userId: userID, quoteId: quoteID });
+        if (quoteBookmarkObj) {
+            return res.json({ success: true, data: quoteBookmarkObj });
+        }
+        return res.json({ success: false, message: 'not found data' });
+
+    } catch (error) {
+        console.err(error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+
+});
 
 router.post('/quoteBookmark', verifyToken, async (req, res) => {
     const { userID, quoteID } = req.body;
