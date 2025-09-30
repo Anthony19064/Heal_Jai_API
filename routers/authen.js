@@ -4,6 +4,8 @@ const Account = require('../models/accountModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
@@ -238,23 +240,23 @@ router.post('/sendOTP', async (req, res) => {
       return res.status(400).json({ error: 'mail is required' });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_APP,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await transporter.sendMail({
-      from: `"HealJai" <${process.env.EMAIL_APP}>`,
+    const msg = {
       to: mail,
+      from: process.env.SENDGRID_FROM_EMAIL,
       subject: 'รหัสยืนยันรีเซ็ตรหัสผ่าน',
       text: `รหัส OTP ของคุณคือ: ${otp}`,
-    });
-
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>รหัสยืนยัน OTP</h2>
+          <p>รหัส OTP ของคุณคือ:</p>
+          <h1 style="color: #4CAF50; font-size: 32px; letter-spacing: 5px;">${otp}</h1>
+          <p style="color: #666;">รหัสนี้จะหมดอายุใน 5 นาที</p>
+        </div>
+      `
+    };
+    await sgMail.send(msg);
     await client.set(`otp:${mail}`, otp, { EX: 300 });
 
     return res.status(200).json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)" })
