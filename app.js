@@ -30,6 +30,7 @@ const diaryRouters = require('./routers/diary');
 const treeRouters = require('./routers/tree');
 const tokenRouters = require('./routers/token');
 const quoteRouters = require('./routers/quote');
+const minigameRouters = require('./routers/minigame');
 
 app.use(express.json());
 
@@ -45,6 +46,7 @@ app.use('/api', diaryRouters);
 app.use('/api', treeRouters);
 app.use('/api', tokenRouters);
 app.use('/api', quoteRouters);
+app.use('/api', minigameRouters);
 
 app.get('/', (req, res) => {
   res.send('Welcome to HealJai API :)');

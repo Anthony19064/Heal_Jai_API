@@ -10,7 +10,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
 
-const nodemailer = require('nodemailer');
 const redis = require('redis'); //เก็บ OTP
 const client = redis.createClient(
   {
