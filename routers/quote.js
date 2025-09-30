@@ -79,7 +79,6 @@ router.get('/quoteBookmark/:userID/:quoteID', verifyToken, async (req, res) => {
         console.err(error);
         return res.status(500).json({ error: 'Internal server error' });
     }
-
 });
 
 router.post('/quoteBookmark', verifyToken, async (req, res) => {
@@ -101,6 +100,26 @@ router.post('/quoteBookmark', verifyToken, async (req, res) => {
     } catch (error) {
         console.err(error);
         return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/quoteBookmarkLst/:userID', verifyToken, async (req, res) => {
+    const { userID } = req.params;
+    if (!userID || typeof (userID) !== 'string' || !quoteID || typeof (quoteID) !== 'string') {
+        return res.status(400).json({ success: false, message: 'userID & quoteID is require' });
+    }
+    if (userID !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Forbidden access' });
+    }
+
+    try {
+        const MyquoteBookmark = await QuoteBookmark.find({ userId: userID })
+            .sort({ createdAt: -1 })
+        return res.json({ success: true, data: MyquoteBookmark })
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 
 });
