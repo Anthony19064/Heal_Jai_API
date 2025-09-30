@@ -3,6 +3,7 @@ const router = express.Router();
 const Quote = require('../models/quoteModel');
 const QuoteLike = require('../models/quoteLikeModel');
 const QuoteBookmark = require('../models/quoteBookmarkModel');
+const { Types } = mongoose;
 
 const verifyToken = require('../middleware/verifyToken');
 
@@ -115,7 +116,18 @@ router.get('/quoteBookmarkLst/:userID', verifyToken, async (req, res) => {
     try {
         const MyquoteBookmark = await QuoteBookmark.find({ userId: userID })
             .sort({ createdAt: -1 })
-        return res.json({ success: true, data: MyquoteBookmark })
+
+        if (MyquoteBookmark.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+        // ดึง quoteId แล้วแปลงเป็น ObjectId
+        const quoteIds = MyquoteBookmark.map(b => Types.ObjectId(b.quoteId));
+
+        // query quote collection
+        const quotes = await Quote.find({ _id: { $in: quoteIds } });
+
+        // ส่งคืน quote object array
+        return res.json({ success: true, data: quotes });
 
     } catch (err) {
         console.log(err);
