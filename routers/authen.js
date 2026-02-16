@@ -4,8 +4,9 @@ const Account = require('../models/accountModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
@@ -269,7 +270,7 @@ router.post('/sendOTP', async (req, res) => {
 
     const msg = {
       to: mail,
-      from: process.env.SENDGRID_FROM_EMAIL,
+      from: process.env.RESEND_FROM_EMAIL,
       subject: 'รหัสยืนยันรีเซ็ตรหัสผ่าน',
       text: `รหัส OTP ของคุณคือ: ${otp}`,
       html: `
@@ -281,7 +282,7 @@ router.post('/sendOTP', async (req, res) => {
         </div>
       `
     };
-    await sgMail.send(msg);
+    await resend.emails.send(msg);
     await client.set(`otp:${mail}`, otp, { EX: 300 });
 
     return res.status(200).json({ success: true, message: "ส่งรหัสยืนยันไปที่ Email แล้วน้า :)" })
