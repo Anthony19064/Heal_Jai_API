@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-import { Resend } from 'resend';
+const Resend = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
