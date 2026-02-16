@@ -269,10 +269,9 @@ router.post('/sendOTP', async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const msg = {
-      to: mail,
       from: process.env.RESEND_FROM_EMAIL,
+      to: mail,
       subject: 'รหัสยืนยันรีเซ็ตรหัสผ่าน',
-      text: `รหัส OTP ของคุณคือ: ${otp}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>รหัสยืนยัน OTP</h2>
