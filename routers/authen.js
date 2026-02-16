@@ -10,20 +10,46 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const JWT_ACCESS = process.env.JWT_ACCESS_KEY;
 const JWT_REFRESH = process.env.JWT_REFRESH_KEY;
 
-const redis = require('redis'); //เก็บ OTP
-const client = redis.createClient(
-  {
-    url: process.env.REDIS_URL,
-  });
+
+
+const redis = require('redis');
+const client = redis.createClient({
+  url: process.env.REDIS_URL,
+  socket: {
+    // พยายาม reconnect ใหม่เรื่อย ๆ ถ้าโดนตัด
+    reconnectStrategy: (retries) => {
+      console.log(`🔄 Redis reconnect attempt #${retries}`);
+      return Math.min(retries * 100, 3000); // เพิ่ม delay ทีละหน่อย สูงสุด 3 วินาที
+    }
+  }
+});
+
+// จับ error กันแอปพัง
+client.on('error', (err) => {
+  console.error('❌ Redis Client Error:', err.message);
+});
+
+// จับตอน connect สำเร็จ
+client.on('connect', () => {
+  console.log('✅ Redis connected');
+});
+
+// จับตอน disconnect
+client.on('end', () => {
+  console.log('⚠️ Redis connection closed');
+});
 
 (async () => {
   try {
     await client.connect();
-    console.log('Redis connected');
   } catch (err) {
     console.error('Redis connection failed:', err);
   }
 })();
+
+
+
+
 
 //เข้าสู่ระบบ
 router.post('/login', async (req, res) => {
