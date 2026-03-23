@@ -60,6 +60,25 @@ function match() {
   })();
 }
 
+async function saveLogChat(roomID) {
+  const room = rooms[roomID];
+  if (!room || room.saved) return;
+
+  room.saved = true; // กัน save ซ้ำ
+
+  try {
+
+    const newLog = new LogChat({ roomId: roomID, message: room.messages });
+    await newLog.save();
+
+    console.log(`✅ saved chat ${roomID}`);
+  } catch (err) {
+    console.error('❌ save error:', err);
+  }
+
+  delete rooms[roomID]; // ลบข้อมูลที่บันทึกแล้ว
+}
+
 module.exports = (io) => {
   io.on('connection', (socket) => {
     const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
@@ -153,23 +172,3 @@ module.exports = (io) => {
     });
   });
 };
-
-
-async function saveLogChat(roomID) {
-  const room = rooms[roomID];
-  if (!room || room.saved) return;
-
-  room.saved = true; // กัน save ซ้ำ
-
-  try {
-
-    const newLog = new LogChat({ roomId: roomID, message: room.message });
-    await newLog.save();
-
-    console.log(`✅ saved chat ${roomID}`);
-  } catch (err) {
-    console.error('❌ save error:', err);
-  }
-
-  delete rooms[roomID]; // ลบข้อมูลที่บันทึกแล้ว
-}
