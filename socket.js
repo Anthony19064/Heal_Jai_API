@@ -2,9 +2,12 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const JWT_KEY = process.env.JWT_ACCESS_KEY;
 
+const LogChat = require('./models/logchatModel');
+
 let listenersQueue = [];
 let talkersQueue = [];
 let matchStatus = false;
+const rooms = {};
 
 function match() {
   if (matchStatus) return;
@@ -102,16 +105,31 @@ module.exports = (io) => {
       });
 
       socket.on('sendMessage', ({ roomId, message, time, role }) => {
-        if (socket.data.roomId === roomId) {
-          socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
-        } else {
+        if (socket.data.roomId !== roomId) {
           socket.emit('unauthorized', 'Invalid room');
+          return;
         }
+
+        if (!rooms[roomId]) {
+          rooms[roomId] = {
+            messages: [],
+            saved: false
+          };
+        }
+
+        rooms[roomId].messages.push({
+          sender: socket.user.id,
+          text: message,
+        });
+
+        socket.to(roomId).emit('receiveMessage', { message, sender: "other", time, role });
       });
 
-      socket.on('endChat', () => {
-        if (socket.data.roomId) {
-          socket.to(socket.data.roomId).emit('chatDisconnected');
+      socket.on('endChat', async () => {
+        const roomId = socket.data.roomId;
+        if (roomId) {
+          socket.to(roomId).emit('chatDisconnected');
+          await saveLogChat(roomId);
         }
         if (socket.data.role === 'listener') {
           listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
@@ -121,9 +139,11 @@ module.exports = (io) => {
         socket.data.roomId = null;
       });
 
-      socket.on('disconnect', () => {
-        if (socket.data.roomId) {
-          socket.to(socket.data.roomId).emit('chatDisconnected');
+      socket.on('disconnect', async () => {
+        const roomId = socket.data.roomId;
+        if (roomId) {
+          socket.to(roomId).emit('chatDisconnected');
+          await saveLogChat(roomId);
         }
         listenersQueue = listenersQueue.filter(s => s.id !== socket.id);
         talkersQueue = talkersQueue.filter(s => s.id !== socket.id);
@@ -133,3 +153,23 @@ module.exports = (io) => {
     });
   });
 };
+
+
+async function saveLogChat(roomID) {
+  const room = rooms[roomID];
+  if (!room || room.saved) return;
+
+  room.saved = true; // กัน save ซ้ำ
+
+  try {
+
+    const newLog = new LogChat({ roomId: roomID, message: room.message });
+    await newLog.save();
+
+    console.log(`✅ saved chat ${roomID}`);
+  } catch (err) {
+    console.error('❌ save error:', err);
+  }
+
+  delete rooms[roomID]; // ลบข้อมูลที่บันทึกแล้ว
+}
