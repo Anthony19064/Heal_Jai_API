@@ -135,7 +135,6 @@ module.exports = (io) => {
             saved: false
           };
         }
-
         rooms[roomId].messages.push({
           sender: socket.user.id,
           text: message,
