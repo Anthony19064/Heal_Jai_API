@@ -64,7 +64,7 @@ router.post("/ask", verifyToken, async (req, res) => {
                         { role: "user", content: userMessage }
                     ],
                     temperature: 0.5,
-                    max_tokens: 500,
+                    max_tokens: 1000,
                     top_p: 1,
                     presence_penalty: 0.4,
                     frequency_penalty: 0.6,
