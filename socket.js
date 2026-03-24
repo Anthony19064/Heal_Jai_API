@@ -26,7 +26,7 @@ function match() {
           !talker.data.roomId &&
           listener.id !== talker.id
         ) {
-          const roomId = `${listener.user.id}#${talker.user.id}`;
+          const roomId = `${listener.id}#${talker.id}`;
           listener.data.roomId = roomId;
           talker.data.roomId = roomId;
 
