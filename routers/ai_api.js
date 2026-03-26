@@ -46,6 +46,7 @@ const SYSTEM_PROMPT = `
 router.post("/ask", async (req, res) => {
     try {
         const userMessage = req.body.message;
+        const logChat = req.body.logChat || [];
 
         const response = await fetch(
             "https://api.openai.com/v1/chat/completions",
@@ -58,8 +59,9 @@ router.post("/ask", async (req, res) => {
                 body: JSON.stringify({
                     model: "ft:gpt-4o-2024-08-06:cepp:cepp-ai-v2:D2W9oAH1",
                     messages: [
-                        { role: "system", content: SYSTEM_PROMPT },                   
-                        { role: "user", content: userMessage }
+                        { role: "system", content: SYSTEM_PROMPT },       
+                        ...logChat,            
+                        // { role: "user", content: userMessage }
                     ],
                     temperature: 0.5,
                     max_tokens: 1000,
