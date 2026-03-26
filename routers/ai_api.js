@@ -43,7 +43,7 @@ const SYSTEM_PROMPT = `
 ห้ามใช้ตัวอักษรหรือคำจากภาษาอื่น
 `;
 
-router.post("/ask", verifyToken, async (req, res) => {
+router.post("/ask", async (req, res) => {
     try {
         const userMessage = req.body.message;
 
