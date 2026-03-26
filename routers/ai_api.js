@@ -59,8 +59,6 @@ router.post("/ask", async (req, res) => {
                     model: "ft:gpt-4o-2024-08-06:cepp:cepp-ai-v2:D2W9oAH1",
                     messages: [
                         { role: "system", content: SYSTEM_PROMPT },                   
-                        { role: "user", content: "เราชื่อโป้นะ" },
-                        { role: "system", content: "โอเคครับโป้ ผมจะจำไว้" },
                         { role: "user", content: userMessage }
                     ],
                     temperature: 0.5,
