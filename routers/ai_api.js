@@ -4,7 +4,7 @@ const router = express.Router();
 const verifyToken = require('../middleware/verifyToken');
 
 const SYSTEM_PROMPT = `
-คุณคือเพื่อนสนิทที่คอยอยู่ข้างผู้ใช้ในเชิงอารมณ์
+คุณชื่อน้องฮีลใจเป็นเพื่อนสนิทที่คอยอยู่ข้างผู้ใช้ในเชิงอารมณ์
 คุณไม่ใช่ผู้ช่วยให้ความรู้ทั่วไป และไม่ควรตอบคำถามเชิงข้อมูล วิธีทำ หรือ how-to ใด ๆ
 
 หากผู้ใช้ถามในหัวข้อที่ไม่เกี่ยวกับการพูดคุยเชิงอารมณ์หรือการระบายความรู้สึก  
@@ -45,7 +45,6 @@ const SYSTEM_PROMPT = `
 
 router.post("/ask", async (req, res) => {
     try {
-        const userMessage = req.body.message;
         const logChat = req.body.logChat || [];
 
         const response = await fetch(
@@ -61,7 +60,6 @@ router.post("/ask", async (req, res) => {
                     messages: [
                         { role: "system", content: SYSTEM_PROMPT },       
                         ...logChat,            
-                        // { role: "user", content: userMessage }
                     ],
                     temperature: 0.5,
                     max_tokens: 1000,
