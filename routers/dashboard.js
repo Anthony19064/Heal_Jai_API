@@ -16,7 +16,7 @@ router.get('/dashboards', async (req, res) => {
 
 //เพิ่มข้อมูล DashBoard Post
 router.post('/dashboardPosts', async (req, res) => {
-    const { userID_sender, userID_reciver, type, feature, detail } = req.body;
+    const { userID_sender, userID_reciver, postId, type, feature, detail } = req.body;
     const date = new Date();
     const thaiDate = date.toLocaleString('th-TH', {
         timeZone: 'Asia/Bangkok',
@@ -28,7 +28,7 @@ router.post('/dashboardPosts', async (req, res) => {
         second: '2-digit'
     });
     try {
-        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: userID_reciver, RoomId: '-', Type: type, Feature: feature, Date: thaiDate, Detail: detail });
+        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: userID_reciver, PostId: postId, RoomId: '-', Type: type, Feature: feature, Date: thaiDate, Detail: detail });
         await newReport.save();
         return res.json({ success: true, message: "รายงานผู้ใช้แล้ว", data: newReport });
     } catch (err) {
@@ -51,7 +51,7 @@ router.post('/dashboardsChats', async (req, res) => {
         second: '2-digit'
     });
     try {
-        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: '-', RoomId: roomID, Type: type, Feature: feature, Date: thaiDate, Detail: detail });
+        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: '-', PostId: '-', RoomId: roomID, Type: type, Feature: feature, Date: thaiDate, Detail: detail });
         await newReport.save();
         return res.json({ success: true, message: "รายงานผู้ใช้แล้ว", data: newReport });
     } catch (err) {
