@@ -31,6 +31,7 @@ const treeRouters = require('./routers/tree');
 const tokenRouters = require('./routers/token');
 const quoteRouters = require('./routers/quote');
 const minigameRouters = require('./routers/minigame');
+const dashboardRouters = require('./routers/dashboard');
 const aiRouters = require('./routers/ai_api');
 
 app.use(express.json());
@@ -49,10 +50,11 @@ app.use('/api', tokenRouters);
 app.use('/api', quoteRouters);
 app.use('/api', minigameRouters);
 app.use('/api', aiRouters);
+app.use('/admin', dashboardRouters)
 
 app.get('/', (req, res) => {
   res.send('Welcome to HealJai API :)');
-})
+});
 
 
 server.listen(3000, () => {
