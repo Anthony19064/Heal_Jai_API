@@ -5,7 +5,7 @@ const DashBoard = require('../models/dashBoardModel');
 //ดึงข้อมูล DashBoard
 router.get('/dashboardPosts', async (req, res) => {
     try {
-        const reports = await DashBoard.find({ Type: 'Post' });
+        const reports = await DashBoard.find({ Feature: 'Post' });
         return res.json(reports);
     } catch (err) {
         console.error(err);
@@ -15,7 +15,7 @@ router.get('/dashboardPosts', async (req, res) => {
 
 router.get('/dashboardChats', async (req, res) => {
     try {
-        const reports = await DashBoard.find({ Type: 'Chat' });
+        const reports = await DashBoard.find({ Feature: 'Chat' });
         return res.json(reports);
     } catch (err) {
         console.error(err);
