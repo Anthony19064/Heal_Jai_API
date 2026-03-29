@@ -2,20 +2,9 @@ const express = require('express');
 const router = express.Router();
 const DashBoard = require('../models/dashBoardModel');
 
-//ดึงข้อมูล DashBoard
-router.get('/dashboardPosts', async (req, res) => {
+router.get('/dashboards', async (req, res) => {
     try {
-        const reports = await DashBoard.find({ Feature: 'Post' });
-        return res.json(reports);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-router.get('/dashboardChats', async (req, res) => {
-    try {
-        const reports = await DashBoard.find({ Feature: 'Chat' });
+        const reports = await DashBoard.find();
         return res.json(reports);
     } catch (err) {
         console.error(err);
