@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const DashBoardSchema = new mongoose.Schema({
   UserId_sender : String,
   UserId_reciver : String,
+  RoomId : String,
   Type : String,
   Feature : String,
   Date : String,
