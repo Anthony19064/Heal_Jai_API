@@ -28,9 +28,9 @@ router.post('/dashboards', async (req, res) => {
         second: '2-digit'
     });
     try {
-        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: userID_reciver, Type: type, Feature: feature, Date: thaiDate, Datail: detail });
+        const newReport = new DashBoard({ UserId_sender: userID_sender, UserId_reciver: userID_reciver, Type: type, Feature: feature, Date: thaiDate, Detail: detail });
         await newReport.save();
-        return res.json({ success: true, message: "รายงานผู้ใช้sแล้ว", data: newReport });
+        return res.json({ success: true, message: "รายงานผู้ใช้แล้ว", data: newReport });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: 'Internal server error' });
